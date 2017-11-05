@@ -17,6 +17,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
+    private val tag = "MainActivity"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -27,7 +28,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         if (ContextCompat.checkSelfPermission(this,
                 android.Manifest.permission.ACCESS_FINE_LOCATION)
                 != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 666)
+            val requestCode = 666
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), requestCode)
+            println(">>>>> [$tag]onRequestPermissionsResult: $requestCode PERMISSION_REQUESTED")
         }
 
         fab.setOnClickListener { view ->
@@ -43,6 +46,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
 
         nav_view.setNavigationItemSelectedListener(this)
+        println(">>>>> [$tag]OnCreate")
     }
 
     // Runtime requests
@@ -52,12 +56,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             666->{
                 if(grantResults.isNotEmpty()&&grantResults[0]==PackageManager.PERMISSION_GRANTED){
                     Toast.makeText(this, "Nice! Your location is now available!",Toast.LENGTH_LONG).show()
+                    println(">>>>> [$tag]onRequestPermissionsResult:$requestCode PERMISSION_GRANTED")
                 }
                 else{
                     Toast.makeText(this, "Location access denied",Toast.LENGTH_LONG).show()
+                    println(">>>>> [$tag]onRequestPermissionsResult:$requestCode PERMISSION_NOT_GRANTED")
+
                 }
             }
         }
+        println(">>>>> [$tag]onRequestPermissionsResult")
     }
 
     //Test whether need to close drawer first
@@ -67,11 +75,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         } else {
             super.onBackPressed()
         }
+        println(">>>>> [$tag]onBackPressed")
     }
 
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main, menu)
+        println(">>>>> [$tag]onCreateOptionsMenu")
         return true
     }
 
@@ -79,6 +89,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
+        println(">>>>> [$tag]onOptionsItemSelected")
         return when (item.itemId) {
             R.id.action_settings -> true
             else -> super.onOptionsItemSelected(item)
@@ -109,6 +120,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
 
         drawer_layout.closeDrawer(GravityCompat.START)
+        println(">>>>> [$tag]onNavigationItemSelected")
         return true
     }
 }

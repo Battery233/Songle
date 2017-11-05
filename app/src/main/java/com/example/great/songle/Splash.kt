@@ -10,12 +10,13 @@ import kotlinx.android.synthetic.main.activity_splash.*
 
 
 class Splash : AppCompatActivity() {
-
+    private  val tag = "Splash"
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
         supportActionBar?.hide()
+        println(">>>>> [$tag]OnCreate: ActionbarHide")
         
         val packagemanager = packageManager
         try {
@@ -23,6 +24,7 @@ class Splash : AppCompatActivity() {
             versionNumber.text = "Version:"+pm.versionName
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
+            println(">>>>> [$tag]OnCreate: PackageManager.NameNotFoundException")
         }
 
         val handler = Handler()
@@ -31,6 +33,7 @@ class Splash : AppCompatActivity() {
             startActivity(intent)
             this@Splash.finish()
         },3000)
+
 
     }
 }
