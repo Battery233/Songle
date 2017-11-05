@@ -1,8 +1,12 @@
 package com.example.great.songle
 
+import android.content.Intent
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
+import android.support.v4.app.ActivityCompat
+import android.support.v4.content.ContextCompat
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AppCompatActivity
@@ -19,9 +23,18 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         setContentView(R.layout.activity_main)
         setSupportActionBar(toolbar)
 
+        //test permission access
+        if (ContextCompat.checkSelfPermission(this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION)
+                != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION), 666)
+        }
+
         fab.setOnClickListener { view ->
             Snackbar.make(view, "Clicked!", Snackbar.LENGTH_LONG)
                     .setAction("Close") {Toast.makeText(this, "Yes!",Toast.LENGTH_SHORT).show() }.show()
+            val intent = Intent(this, MapsActivity::class.java)                     //goto map activity
+            startActivity(intent)
         }
 
         val toggle = ActionBarDrawerToggle(
@@ -32,6 +45,22 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         nav_view.setNavigationItemSelectedListener(this)
     }
 
+    // Runtime requests
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        when(requestCode){
+            666->{
+                if(grantResults.isNotEmpty()&&grantResults[0]==PackageManager.PERMISSION_GRANTED){
+                    Toast.makeText(this, "Nice! Your location is now available!",Toast.LENGTH_LONG).show()
+                }
+                else{
+                    Toast.makeText(this, "Location access denied",Toast.LENGTH_LONG).show()
+                }
+            }
+        }
+    }
+
+    //Test whether need to close drawer first
     override fun onBackPressed() {
         if (drawer_layout.isDrawerOpen(GravityCompat.START)) {
             drawer_layout.closeDrawer(GravityCompat.START)
