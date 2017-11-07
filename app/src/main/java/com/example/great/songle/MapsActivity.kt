@@ -25,11 +25,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleApiClient.Con
 
     private lateinit var mMap: GoogleMap
     private lateinit var mGoogleApiClient: GoogleApiClient
-    val permissionsRequestAccessFineLocation = 1
-    var mLocationPermissionGranted = false
-    // getLastLocation can return null, so we need the type "Location?"
-    private var mLastLocation: Location? = null
+    private val permissionsRequestAccessFineLocation = 1
+    private var mLastLocation: Location? = null             // getLastLocation can return null
     private val tag = "MapsActivity"
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_maps)
