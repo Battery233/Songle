@@ -23,7 +23,7 @@ class Splash : AppCompatActivity() {
         supportActionBar?.hide()
         println(">>>>> [$tag]OnCreate: ActionbarHide")
 
-        //Setup NetworkReceiver to monitor network change TODO: Add user network preference settings
+        //Setup NetworkReceiver to monitor network change
         class NetworkReceiver : BroadcastReceiver(){
             override fun onReceive(context: Context, intent: Intent){
                 val connMgr =
@@ -45,9 +45,9 @@ class Splash : AppCompatActivity() {
             }
 
         }
-        var network_receiver = NetworkReceiver()
+        val networkReceiver = NetworkReceiver()
         val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
-        this.registerReceiver(network_receiver, filter)                 //registerReceiver
+        this.registerReceiver(networkReceiver, filter)                 //registerReceiver
 
 
 

@@ -2,6 +2,7 @@ package com.example.great.songle
 
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.graphics.Typeface
 import android.os.Bundle
 import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
@@ -15,6 +16,8 @@ import android.view.MenuItem
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.content_main.*
+import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private val tag = "MainActivity"
@@ -44,8 +47,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 this, drawer_layout, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close)
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
-
         nav_view.setNavigationItemSelectedListener(this)
+        //change fonts
+        val typeface=Typeface.createFromAsset(assets,"fonts/comicbd.ttf")
+        textView2.typeface =typeface
+        textView3.typeface = typeface
+        textView4.typeface = typeface
+        textView5.typeface = typeface
         println(">>>>> [$tag]OnCreate")
     }
 
@@ -99,16 +107,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         when (item.itemId) {
-            R.id.nav_camera -> {
+            /*R.id.nav_camera -> {
                 // Handle the camera action
-            }
-            R.id.nav_gallery -> {
+            }*/
 
-            }
-            R.id.nav_slideshow -> {
-
-            }
-            R.id.nav_manage -> {
+          /*  R.id.nav_manage -> {
 
             }
             R.id.nav_share -> {
@@ -116,7 +119,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
             R.id.nav_send -> {
 
-            }
+            }*/
         }
 
         drawer_layout.closeDrawer(GravityCompat.START)
