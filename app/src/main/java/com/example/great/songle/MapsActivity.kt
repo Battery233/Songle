@@ -88,7 +88,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleApiClient.Con
         // Add a marker in Edinburgh and move the camera
         val Edinburgh = LatLng(55.9439327, -3.1905939)
         mMap.addMarker(MarkerOptions().position(Edinburgh).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)).title("Very interesting. Distance:591m"))
-        mMap.addMarker(MarkerOptions().position(LatLng(55.944000, -3.19109)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)).title("Very interesting. Distance:582m"))
+        mMap.addMarker(MarkerOptions().position(LatLng(55.944000, -3.19109)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)).title("Interesting. Distance:582m"))
         mMap.moveCamera(CameraUpdateFactory.newLatLng(Edinburgh))
         mMap.addMarker(MarkerOptions().position(LatLng(55.943845, -3.190203)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)).title("2"))
         mMap.addMarker(MarkerOptions().position(LatLng(55.944000, -3.19186)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).title("4"))
