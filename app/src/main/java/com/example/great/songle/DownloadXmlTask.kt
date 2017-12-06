@@ -3,8 +3,7 @@ package com.example.great.songle
 import android.content.res.Resources
 import android.os.AsyncTask
 import org.xmlpull.v1.XmlPullParserException
-import java.io.IOException
-import java.io.InputStream
+import java.io.*
 import java.net.HttpURLConnection
 import java.net.URL
 
@@ -42,7 +41,14 @@ class DownloadXmlTask(private val resources : Resources,
     private fun loadXmlFromNetwork(urlString: String): String {
         val result = StringBuilder()
         val stream = downloadUrl(urlString)
-        // TODO： Add tasks to deal with stream
+        println(">>>>> [$tag]GetDownloaded stream")
+        val reader=BufferedReader(InputStreamReader(stream))
+        var line: String? = null
+        while ({ line = reader.readLine(); line }()!=null)
+        {
+            result.append(line)
+        }
+
         return  result.toString()
     }
 

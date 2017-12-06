@@ -17,6 +17,27 @@ import kotlinx.android.synthetic.main.activity_splash.*
 class Splash : AppCompatActivity() {
     private  val tag = "Splash"
     @SuppressLint("SetTextI18n")
+    private inner class NetworkReceiver : BroadcastReceiver(){
+        override fun onReceive(context: Context, intent: Intent){
+            val connMgr =
+                    context.getSystemService(Context.CONNECTIVITY_SERVICE)
+                            as ConnectivityManager
+            val networkInfo = connMgr.activeNetworkInfo
+            when {
+                networkInfo?.type == ConnectivityManager.TYPE_WIFI -> {
+                    println(">>>>> [$tag]OnCreate: NetworkReceiver WIFI")
+                }
+                networkInfo != null -> {
+                    println(">>>>> [$tag]OnCreate: NetworkReceiver DATA")
+                }
+                else -> {
+                    Toast.makeText(this@Splash,"No Internet access!", Toast.LENGTH_SHORT).show()
+                    println(">>>>> [$tag]OnCreate: NetworkReceiver No internet")
+                }
+            }
+        }
+
+    }
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
@@ -24,27 +45,6 @@ class Splash : AppCompatActivity() {
         println(">>>>> [$tag]OnCreate: ActionbarHide")
 
         //Setup NetworkReceiver to monitor network change
-        class NetworkReceiver : BroadcastReceiver(){
-            override fun onReceive(context: Context, intent: Intent){
-                val connMgr =
-                        context.getSystemService(Context.CONNECTIVITY_SERVICE)
-                                as ConnectivityManager
-                val networkInfo = connMgr.activeNetworkInfo
-                when {
-                    networkInfo?.type == ConnectivityManager.TYPE_WIFI -> {
-                        println(">>>>> [$tag]OnCreate: NetworkReceiver WIFI")
-                    }
-                    networkInfo != null -> {
-                        println(">>>>> [$tag]OnCreate: NetworkReceiver DATA")
-                    }
-                    else -> {
-                        Toast.makeText(this@Splash,"No Internet access!", Toast.LENGTH_SHORT).show()
-                        println(">>>>> [$tag]OnCreate: NetworkReceiver No internet")
-                    }
-                }
-            }
-
-        }
         val networkReceiver = NetworkReceiver()
         val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         this.registerReceiver(networkReceiver, filter)                 //registerReceiver
