@@ -1,6 +1,5 @@
 package com.example.great.songle
 
-import android.content.res.Resources
 import android.os.AsyncTask
 import org.xmlpull.v1.XmlPullParserException
 import java.io.*
@@ -12,13 +11,18 @@ import java.net.URL
 *For fetching XML files
  */
 
-interface DownloadCompleteListener {
+class DownloadCompleteListener {
     fun downloadComplete(result: String)
+    {
+        println(">>>>>DownloadXMLCallback"+result)
+    }
 }
 
-class DownloadXmlTask(private val resources : Resources,
+/*class DownloadXmlTask(private val resources : Resources,
                       private val caller : DownloadCompleteListener,
                       private val summaryPref : Boolean) :
+        AsyncTask<String, Void, String>()*/
+class DownloadXmlTask(private val caller : DownloadCompleteListener) :
         AsyncTask<String, Void, String>(){
     private  val tag = "DownloadXmlTask"
 
@@ -38,10 +42,9 @@ class DownloadXmlTask(private val resources : Resources,
         caller.downloadComplete(result)
     }
 
-    private fun loadXmlFromNetwork(urlString: String): String {
+    fun loadXmlFromNetwork(urlString: String): String {
         val result = StringBuilder()
         val stream = downloadUrl(urlString)
-        println(">>>>> [$tag]GetDownloaded stream")
         val reader=BufferedReader(InputStreamReader(stream))
         var line: String? = null
         while ({ line = reader.readLine(); line }()!=null)
@@ -55,7 +58,7 @@ class DownloadXmlTask(private val resources : Resources,
     @Throws(IOException::class)
     // Given a string representation of a URL, sets up a connection and gets
     // an input stream.
-    private fun downloadUrl(urlString: String): InputStream {
+    fun downloadUrl(urlString: String): InputStream {
         val url = URL(urlString)
         val conn = url.openConnection() as HttpURLConnection
         conn.readTimeout = 10000 // milliseconds
@@ -64,6 +67,7 @@ class DownloadXmlTask(private val resources : Resources,
         conn.doInput = true
         // Starts the query
         conn.connect()
+        println(">>>>> [$tag]GetDownloaded stream")
         return conn.inputStream
     }
 }

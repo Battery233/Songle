@@ -17,10 +17,6 @@
             android:id="@+id/nav_preference"
             android:icon="@drawable/ic_menu_manage"
             android:title="Preference" />
-        <item
-            android:id="@+id/settings"
-            android:icon="@drawable/ic_settings"
-            android:title="Settings" />
     </group>
 
     <item android:title="Communicate">
@@ -29,10 +25,6 @@
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_menu_share"
                 android:title="Share" />
-            <item
-                android:id="@+id/nav_logout"
-                android:icon="@drawable/ic_x"
-                android:title="Logout" />
         </menu>
     </item>
 

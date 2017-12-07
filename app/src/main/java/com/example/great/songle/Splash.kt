@@ -12,7 +12,8 @@ import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_splash.*
-
+import java.io.ByteArrayInputStream
+import java.io.InputStream
 
 class Splash : AppCompatActivity() {
     private  val tag = "Splash"
@@ -60,6 +61,17 @@ class Splash : AppCompatActivity() {
             println(">>>>> [$tag]OnCreate: PackageManager.NameNotFoundException")
         }
 
+        // Thread for fetch XML for the list of the song
+        Thread({
+            val downloadXMLListener = DownloadCompleteListener()
+            val inputXML = DownloadXmlTask(downloadXMLListener).loadXmlFromNetwork("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/songs.xml")
+            println(">>>>>InputXML"+inputXML)
+            val streamXML:InputStream = ByteArrayInputStream(inputXML.toByteArray())
+            val songList = XmlParser().parse(DownloadXmlTask(downloadXMLListener).downloadUrl("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/songs.xml"))
+            println(">>>>>songList"+songList[0])
+            //TODO: DEBUG parser
+        }).start()
+
         val handler = Handler()
         handler.postDelayed({
             val intent = Intent(this@Splash,MainActivity::class.java)               //Delay 3seconds at splash
@@ -68,4 +80,9 @@ class Splash : AppCompatActivity() {
         },3000)
 
     }
+
+    /*override fun onStop() {
+        unregisterReceiver(NetworkReceiver())
+        super.onStop()
+    }*/
 }

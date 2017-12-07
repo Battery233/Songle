@@ -13,15 +13,9 @@ import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
-
-import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.android.gms.maps.model.BitmapDescriptor
-import com.google.android.gms.maps.model.BitmapDescriptorFactory
-import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MarkerOptions
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -77,7 +71,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleApiClient.Con
             mMap.isMyLocationEnabled = true
             mMap.uiSettings.isMyLocationButtonEnabled = true
             mMap.uiSettings.isZoomControlsEnabled = true
-            mMap.mapType = GoogleMap.MAP_TYPE_HYBRID
+            mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
            // mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
             println(">>>>> [$tag]onMapReady:Buttons shown successfully")
         } catch (se: SecurityException) {
@@ -85,20 +79,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleApiClient.Con
             println(">>>>> [$tag]onMapReady:SecurityException")
         }
 
-        // Add a marker in Edinburgh and move the camera
+        /*sample of a landmark
+        Add a marker in Edinburgh and move the camera
         val Edinburgh = LatLng(55.9439327, -3.1905939)
-        mMap.addMarker(MarkerOptions().position(Edinburgh).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)).title("Very interesting. Distance:591m"))
-        mMap.addMarker(MarkerOptions().position(LatLng(55.944000, -3.19109)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)).title("Interesting. Distance:582m"))
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(Edinburgh))
-        mMap.addMarker(MarkerOptions().position(LatLng(55.943845, -3.190203)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)).title("2"))
-        mMap.addMarker(MarkerOptions().position(LatLng(55.944000, -3.19186)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).title("4"))
-        mMap.addMarker(MarkerOptions().position(LatLng(55.942600, -3.19099)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).title("5"))
-        mMap.addMarker(MarkerOptions().position(LatLng(55.94418, -3.190600)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).title("6"))
-        mMap.addMarker(MarkerOptions().position(LatLng(55.9430, -3.190000)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).title("7"))
-        mMap.addMarker(MarkerOptions().position(LatLng(55.94330, -3.190310)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)).title("8"))
-        mMap.addMarker(MarkerOptions().position(LatLng(55.943600, -3.19109)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)).title("9"))
         mMap.addMarker(MarkerOptions().position(LatLng(55.942900, -3.19099)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).title("5"))
-
+        */
         println(">>>>> [$tag]onMapReady")
     }
 

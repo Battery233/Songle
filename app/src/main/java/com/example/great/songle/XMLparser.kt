@@ -5,7 +5,6 @@ import org.xmlpull.v1.XmlPullParser
 import org.xmlpull.v1.XmlPullParserException
 import java.io.IOException
 import java.io.InputStream
-import java.net.URL
 
 /**
  * Created by great on 2017/11/5.
@@ -13,7 +12,7 @@ import java.net.URL
  */
 
 class XmlParser {
-    data class SongInfo(val Number: Int, val Artist: String, val Tittle: String, val Link: URL, var Solved: Int)
+    data class SongInfo(val Number: Int, val Artist: String, val Tittle: String, val Link: String, var Solved: Int)
     private val ns: String? = null
     private  val tag = "XMLParser"
 
@@ -67,7 +66,7 @@ class XmlParser {
                 "Solved"->solved = 0
             }
         }
-        return SongInfo(number,artist,tittle,URL(link),solved)
+        return SongInfo(number,artist,tittle,link,solved)
     }
 
     @Throws(IOException::class, XmlPullParserException::class)
