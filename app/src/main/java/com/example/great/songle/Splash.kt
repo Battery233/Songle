@@ -12,8 +12,7 @@ import android.content.pm.PackageManager
 import android.net.ConnectivityManager
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_splash.*
-import java.io.ByteArrayInputStream
-import java.io.InputStream
+
 
 class Splash : AppCompatActivity() {
     private  val tag = "Splash"
@@ -25,10 +24,12 @@ class Splash : AppCompatActivity() {
                             as ConnectivityManager
             val networkInfo = connMgr.activeNetworkInfo
             when {
-                networkInfo?.type == ConnectivityManager.TYPE_WIFI -> {
+                networkInfo?.type == ConnectivityManager.TYPE_WIFI -> {                       //give toast about internet type
+                    Toast.makeText(this@Splash,"Connect via WIFI!", Toast.LENGTH_SHORT).show()
                     println(">>>>> [$tag]OnCreate: NetworkReceiver WIFI")
                 }
                 networkInfo != null -> {
+                    Toast.makeText(this@Splash,"Connect via 4G Data!", Toast.LENGTH_SHORT).show()
                     println(">>>>> [$tag]OnCreate: NetworkReceiver DATA")
                 }
                 else -> {
@@ -64,12 +65,15 @@ class Splash : AppCompatActivity() {
         // Thread for fetch XML for the list of the song
         Thread({
             val downloadXMLListener = DownloadCompleteListener()
-            val inputXML = DownloadXmlTask(downloadXMLListener).loadXmlFromNetwork("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/songs.xml")
-            println(">>>>>InputXML"+inputXML)
-            val streamXML:InputStream = ByteArrayInputStream(inputXML.toByteArray())
+            //val inputXML = DownloadXmlTask(downloadXMLListener).loadXmlFromNetwork("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/songs.xml")
+            //println(">>>>>InputXML"+inputXML)
+            //val streamXML:InputStream = ByteArrayInputStream(inputXML.toByteArray())
             val songList = XmlParser().parse(DownloadXmlTask(downloadXMLListener).downloadUrl("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/songs.xml"))
-            println(">>>>>songList"+songList[0])
-            //TODO: DEBUG parser
+            var counter = 0
+            while(counter<songList.size) {
+                println(">>>>>[$tag]songList"+counter+":" + songList[counter])                //print the list after parser
+                counter++
+            }
         }).start()
 
         val handler = Handler()
