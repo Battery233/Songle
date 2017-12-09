@@ -14,7 +14,7 @@ import java.net.URL
 class DownloadCompleteListener {
     fun downloadComplete(result: String)
     {
-        println(">>>>>DownloadXMLCallback"+result)
+        println(">>>>>DownloadCallback"+result)
     }
 }
 
@@ -51,7 +51,6 @@ class DownloadXmlTask(private val caller : DownloadCompleteListener) :
         {
             result.append(line)
         }
-
         return  result.toString()
     }
 
