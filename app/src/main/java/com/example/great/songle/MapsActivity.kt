@@ -16,6 +16,9 @@ import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
+import com.google.maps.android.data.kml.KmlLayer
+import java.io.*
+
 
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
@@ -24,6 +27,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleApiClient.Con
     private val permissionsRequestAccessFineLocation = 1
     private var mLastLocation: Location? = null             // getLastLocation can return null
     private val tag = "MapsActivity"
+
+    //Get the song index number here
+    private var currentSong = 1                            //Flag for the song chosen in the list
+    private var mapVersion = 1                             //map version
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -79,12 +86,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleApiClient.Con
             println(">>>>> [$tag]onMapReady:SecurityException")
         }
 
+        try {
+            val  fileIn: FileInputStream? = if (currentSong in 1..9)            //TODO: This is the advantage of kotlin
+                this.openFileInput("MapV${mapVersion}Song0$currentSong.kml")
+            else
+                this.openFileInput("MapV${mapVersion}Song$currentSong.kml")
+            val layer = KmlLayer(mMap,fileIn,this)
+            layer.addLayerToMap()
+            println(">>>>> [$tag] Load Map$currentSong.kml : ${fileIn.toString()}")
+        }
+        catch (e:IOException)
+        {
+            Toast.makeText(this,"Load KML failed",Toast.LENGTH_SHORT).show()
+        }
+
         /*sample of a landmark
         Add a marker in Edinburgh and move the camera
         val Edinburgh = LatLng(55.9439327, -3.1905939)
         mMap.addMarker(MarkerOptions().position(LatLng(55.942900, -3.19099)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).title("5"))
         */
         println(">>>>> [$tag]onMapReady")
+        println("The output word is: "+readLyricFile(currentSong,8,5))
     }
 
     private fun createLocationRequest() {
@@ -135,7 +157,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleApiClient.Con
     println(" >>>>[$tag] onConnectionSuspended")
     }
     override fun onConnectionFailed(result : ConnectionResult) {
-        Toast.makeText(this,"Connection to Google APIs",Toast.LENGTH_LONG).show()
+        Toast.makeText(this,"Connection to Google APIs Failed",Toast.LENGTH_LONG).show()
         println(" >>>> [$tag]onConnectionFailed")
+    }
+
+    //Locate the specific word in the lyrics
+    private fun readLyricFile(songNumber:Int,line:Int,column:Int):String?{
+        val address = if (songNumber in 1..9)
+            "Lyric0$songNumber.txt"
+        else
+            "Lyric$songNumber.txt"
+        var text:String? = ""
+        try {
+            val  fileIn:FileInputStream? = this.openFileInput(address)
+            val reader =BufferedReader(InputStreamReader(fileIn))
+            var i = 0
+            while (i < line)
+            {
+                text = reader.readLine()
+                i++
+            }
+        } catch (e: Exception) {
+            println(">>>>> Failed to read specific word in file")
+        }
+        return text!!.split(" ")[column-1]
     }
 }

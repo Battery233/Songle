@@ -53,9 +53,9 @@ class Splash : AppCompatActivity() {
 
 
 
-        val packagemanager = packageManager
+        val packageInfoManager = packageManager
         try {
-            val pm = packagemanager.getPackageInfo("com.example.great.songle", 0)           //Show version number at bottom
+            val pm = packageInfoManager.getPackageInfo("com.example.great.songle", 0)           //Show version number at bottom
             versionNumber.text = "Version:"+pm.versionName
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
@@ -79,14 +79,21 @@ class Splash : AppCompatActivity() {
                 counter = 1
 
                 while (counter < 10) {
-                    download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/0$counter/words.txt", "Lyric0$counter.txt")
-                    download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/0$counter/map5.txt", "Map0$counter.txt")
-
+                    download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/0$counter/lyrics.txt", "Lyric0$counter.txt")
+                    var map = 1
+                    while (map<6) {
+                        download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/0$counter/map$map.kml", "MapV${map}Song0$counter.kml")
+                        map++
+                    }
                     counter++
                 }
                 while (counter < songList.size + 1) {
-                    download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/$counter/words.txt", "Lyric$counter.txt")
-                    download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/$counter/map5.txt", "Map$counter.txt")
+                    download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/$counter/lyrics.txt", "Lyric$counter.txt")
+                    var map = 1
+                    while (map<6) {
+                        download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/$counter/map${map}.kml", "MapV${map}Song$counter.kml")
+                        map++
+                    }
                     counter++
                 }
             }
@@ -96,7 +103,6 @@ class Splash : AppCompatActivity() {
             }
             /*/GET lyric
                 try {
-                var count = 0
                 val result = StringBuilder()
                 var  fileIn:FileInputStream? = null
                 fileIn= this.openFileInput("Lyric27.txt")
@@ -104,10 +110,9 @@ class Splash : AppCompatActivity() {
                 var line: String? = null
                 while ({ line = reader.readLine(); line }()!=null)
                 {
-                    result.append(line)//TODO: count ==1
-                    count++
+                    result.append(line)
                 }
-                println("baba")
+                println("123")
                 println("$count "+result.toString())
             }
             catch(e:IOException){

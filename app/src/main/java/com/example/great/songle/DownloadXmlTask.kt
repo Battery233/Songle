@@ -50,6 +50,7 @@ class DownloadXmlTask(private val caller : DownloadCompleteListener) :
         while ({ line = reader.readLine(); line }()!=null)
         {
             result.append(line)
+            result.append('\n')
         }
         return  result.toString()
     }
