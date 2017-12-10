@@ -21,6 +21,7 @@ import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private val tag = "MainActivity"
+    val songNumber = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -54,6 +55,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         textView3.typeface = typeface
         textView4.typeface = typeface
         textView5.typeface = typeface
+        textView4.text = "There are $songNumber Songs in the list"
         println(">>>>> [$tag]OnCreate")
     }
 

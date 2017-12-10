@@ -87,13 +87,14 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleApiClient.Con
         }
 
         try {
-            val  fileIn: FileInputStream? = if (currentSong in 1..9)            //TODO: This is the advantage of kotlin
+            val  fileIn: InputStream = if (currentSong in 1..9)            //TODO: This is the advantage of kotlin
                 this.openFileInput("MapV${mapVersion}Song0$currentSong.kml")
             else
                 this.openFileInput("MapV${mapVersion}Song$currentSong.kml")
-            val layer = KmlLayer(mMap,fileIn,this)
-            layer.addLayerToMap()
-            println(">>>>> [$tag] Load Map$currentSong.kml : ${fileIn.toString()}")
+            val MapMarkers = KmlParser().parse(fileIn)
+            /*val layer = KmlLayer(mMap,fileIn,this)            //cannot edit marks in KMLLayer
+            layer.addLayerToMap()*/
+            println(">>>>> [$tag] Load Map$currentSong.kml : $fileIn")
         }
         catch (e:IOException)
         {
