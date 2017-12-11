@@ -13,14 +13,19 @@ import com.google.android.gms.common.api.GoogleApiClient
 import com.google.android.gms.location.LocationListener
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.GoogleMap
 import com.google.android.gms.maps.OnMapReadyCallback
 import com.google.android.gms.maps.SupportMapFragment
-import com.google.maps.android.data.kml.KmlLayer
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
+import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
+import com.google.android.gms.maps.model.MarkerOptions
+import kotlinx.android.synthetic.main.app_bar_main.*
 import java.io.*
 
 
-class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleApiClient.ConnectionCallbacks,GoogleApiClient.OnConnectionFailedListener, LocationListener {
+class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
 
     private lateinit var mMap: GoogleMap
     private lateinit var mGoogleApiClient: GoogleApiClient
@@ -31,9 +36,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleApiClient.Con
     //Get the song index number here
     private var currentSong = 1                            //Flag for the song chosen in the list
     private var mapVersion = 1                             //map version
+    private var songNumber = 0
+    val Marker = arrayOfNulls<Marker>(604)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        //get global variable
+        val application = this.application as MyApplication
+        currentSong = application.getcurrentSong()
+        mapVersion = application.getmapVersion()
+        songNumber = application.getsongNumber()
         setContentView(R.layout.activity_maps)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -79,35 +92,47 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleApiClient.Con
             mMap.uiSettings.isMyLocationButtonEnabled = true
             mMap.uiSettings.isZoomControlsEnabled = true
             mMap.mapType = GoogleMap.MAP_TYPE_NORMAL
-           // mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
+            // mMap.mapType = GoogleMap.MAP_TYPE_SATELLITE
             println(">>>>> [$tag]onMapReady:Buttons shown successfully")
         } catch (se: SecurityException) {
             Toast.makeText(this, "Oops! Cannot get you location now", Toast.LENGTH_LONG).show()
             println(">>>>> [$tag]onMapReady:SecurityException")
         }
 
-        try {
-            val  fileIn: InputStream = if (currentSong in 1..9)            //TODO: This is the advantage of kotlin
-                this.openFileInput("MapV${mapVersion}Song0$currentSong.kml")
-            else
-                this.openFileInput("MapV${mapVersion}Song$currentSong.kml")
-            val MapMarkers = KmlParser().parse(fileIn)
-            /*val layer = KmlLayer(mMap,fileIn,this)            //cannot edit marks in KMLLayer
-            layer.addLayerToMap()*/
-            println(">>>>> [$tag] Load Map$currentSong.kml : $fileIn")
+        //parser for the kml file
+        val kmlLocation: String? = if (currentSong in 1..9) //TODO: This is the advantage of kotlin   if(a = 0)
+            "MapV${mapVersion}Song0$currentSong.kml"
+        else
+            "MapV${mapVersion}Song$currentSong.kml"
+        val fileIn = this.openFileInput(kmlLocation)
+        println(">>>>>[$tag]KML stream input: $fileIn")
+        val mapMarkers = KmlParser().parse(fileIn)
+        println(">>>>> [$tag] Load Map$currentSong.kml : $fileIn")
+        /*val layer = KmlLayer(mMap,fileIn,this)            //cannot edit marks in KMLLayer
+        layer.addLayerToMap()*/
+        var counter = 0
+        while (counter < mapMarkers!!.size) {
+            println(">>>>> [$tag] MapMarkers${1 + counter}=" + mapMarkers[counter])
+            counter++
         }
-        catch (e:IOException)
-        {
-            Toast.makeText(this,"Load KML failed",Toast.LENGTH_SHORT).show()
+        counter = 0
+        while (counter < mapMarkers.size && counter < 604) {
+            when (mapMarkers[counter].description) {
+                "boring" -> Marker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                "notboring" -> Marker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                "interesting" -> Marker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                "veryinteresting" -> Marker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                "unclassified" -> Marker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+            }
+            counter++
         }
+        //move camera to the center of the play zone
+        val edinburgh = LatLng(55.945025, -3.188550)
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(edinburgh))
+        mMap.moveCamera(CameraUpdateFactory.zoomTo(15f))
 
-        /*sample of a landmark
-        Add a marker in Edinburgh and move the camera
-        val Edinburgh = LatLng(55.9439327, -3.1905939)
-        mMap.addMarker(MarkerOptions().position(LatLng(55.942900, -3.19099)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).title("5"))
-        */
         println(">>>>> [$tag]onMapReady")
-        println("The output word is: "+readLyricFile(currentSong,8,5))
+        //Toast.makeText(this, "The word you collected is: " + readLyricFile(currentSong, 3, 5), Toast.LENGTH_LONG).show()
     }
 
     private fun createLocationRequest() {
@@ -150,37 +175,38 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback,GoogleApiClient.Con
             println(">>>>> [$tag] onLocationChanged: Location unknown")
         } else {
             println(""">>>>> [$tag] onLocationChanged: ${current.latitude}/${current.longitude} now""")
+            //To collect the word:
         }
 
     }
 
     override fun onConnectionSuspended(flag: Int) {
-    println(" >>>>[$tag] onConnectionSuspended")
+        println(" >>>>[$tag] onConnectionSuspended")
     }
-    override fun onConnectionFailed(result : ConnectionResult) {
-        Toast.makeText(this,"Connection to Google APIs Failed",Toast.LENGTH_LONG).show()
+
+    override fun onConnectionFailed(result: ConnectionResult) {
+        Toast.makeText(this, "Connection to Google APIs Failed", Toast.LENGTH_LONG).show()
         println(" >>>> [$tag]onConnectionFailed")
     }
 
     //Locate the specific word in the lyrics
-    private fun readLyricFile(songNumber:Int,line:Int,column:Int):String?{
+    private fun readLyricFile(songNumber: Int, line: Int, column: Int): String? {
         val address = if (songNumber in 1..9)
             "Lyric0$songNumber.txt"
         else
             "Lyric$songNumber.txt"
-        var text:String? = ""
+        var text: String? = ""
         try {
-            val  fileIn:FileInputStream? = this.openFileInput(address)
-            val reader =BufferedReader(InputStreamReader(fileIn))
+            val fileIn: FileInputStream? = this.openFileInput(address)
+            val reader = BufferedReader(InputStreamReader(fileIn))
             var i = 0
-            while (i < line)
-            {
+            while (i < line) {
                 text = reader.readLine()
                 i++
             }
         } catch (e: Exception) {
             println(">>>>> Failed to read specific word in file")
         }
-        return text!!.split(" ")[column-1]
+        return text!!.split(" ")[column - 1]
     }
 }

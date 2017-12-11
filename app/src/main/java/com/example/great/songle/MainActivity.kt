@@ -4,7 +4,6 @@ import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.os.Bundle
-import android.support.design.widget.Snackbar
 import android.support.design.widget.NavigationView
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
@@ -17,11 +16,14 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
-import kotlinx.android.synthetic.main.nav_header_main.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private val tag = "MainActivity"
-    val songNumber = 0
+    private var currentSong = 1
+    private var mapVersion = 5
+    private var songNumber = 0
+    var xmlFlag = false
+    //var fileIn:String?=null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -37,11 +39,67 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             println(">>>>> [$tag]onRequestPermissionsResult: $requestCode PERMISSION_REQUESTED")
         }
 
-        fab.setOnClickListener { view ->
-            Snackbar.make(view, "Clicked!", Snackbar.LENGTH_LONG)
-                    .setAction("Close") {Toast.makeText(this, "Yes!",Toast.LENGTH_SHORT).show() }.show()
-            val intent = Intent(this, MapsActivity::class.java)                     //goto map activity
-            startActivity(intent)
+        //get global variable
+        val application = this.application as MyApplication
+        currentSong = application.getcurrentSong()
+        mapVersion = application.getmapVersion()
+        songNumber = application.getsongNumber()
+
+        //Check local file if internet is not available
+        if (songNumber == 0) {
+            try {
+                val fileIn = this.openFileInput("songList.xml")
+                xmlFlag = true
+            } catch (e: Exception) {
+                Toast.makeText(this, "No song list available", Toast.LENGTH_SHORT).show()
+            }
+        }
+        if (xmlFlag) {
+            val songList = XmlParser().parse(this.openFileInput("songList.xml"))
+            application.setsongNumber(songList.size)
+            songNumber = songList.size
+            var counter = 0
+            while (counter < songList.size) {
+                println(">>>>>[$tag]songList" + counter + ":" + songList[counter])                //print the list after parser
+                counter++
+            }
+        }
+
+        fab.setOnClickListener {
+            /*view ->
+                      Snackbar.make(view, "Clicked!", Snackbar.LENGTH_LONG)
+                               .setAction("Close") {Toast.makeText(this, "Yes!",Toast.LENGTH_SHORT).show() }.show()*/
+            /*fileIn = if (currentSong in 1..9)
+                "MapV${mapVersion}Song0$currentSong.kml"
+            else
+                "MapV${mapVersion}Song$currentSong.kml"
+            val file = File(fileIn)
+            if(file.exists()){
+            }else{
+                Toast.makeText(this,"Downloading required files:$fileIn",Toast.LENGTH_LONG).show()
+            }*/
+            val kmlLocation: String? = if (currentSong in 1..9)
+                "MapV${mapVersion}Song0$currentSong.kml"
+            else
+                "MapV${mapVersion}Song$currentSong.kml"
+
+            try {
+                this.openFileInput(kmlLocation)
+                /*println(">>>>>[$tag]KML stream input: $fileIn")
+                val mapMarkers = KmlParser().parse(fileIn)
+                println(">>>>> [$tag] Load Map$currentSong.kml : $fileIn")
+                var counter = 0
+                while (counter < mapMarkers!!.size) {
+                    println(">>>>> [$tag] MapMarkers${1 + counter}=" + mapMarkers[counter])
+                    counter++
+                }
+                application.setmapPlaces(counter)*/
+
+                val intent = Intent(this, MapsActivity::class.java)                      //goto map activity
+                startActivity(intent)
+            } catch (e: Exception) {
+                Toast.makeText(this, "Load KML failed. Restart the game when Internet is available!", Toast.LENGTH_SHORT).show()
+            }
         }
 
         val toggle = ActionBarDrawerToggle(
@@ -50,8 +108,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
         nav_view.setNavigationItemSelectedListener(this)
         //change fonts
-        val typeface=Typeface.createFromAsset(assets,"fonts/comicbd.ttf")
-        textView2.typeface =typeface
+        val typeface = Typeface.createFromAsset(assets, "fonts/comicbd.ttf")
+        textView2.typeface = typeface
         textView3.typeface = typeface
         textView4.typeface = typeface
         textView5.typeface = typeface
@@ -62,14 +120,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     // Runtime requests
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        when(requestCode){
-            666->{
-                if(grantResults.isNotEmpty()&&grantResults[0]==PackageManager.PERMISSION_GRANTED){
-                    Toast.makeText(this, "Nice! Your location is now available!",Toast.LENGTH_LONG).show()
+        when (requestCode) {
+            666 -> {
+                if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "Nice! Your location is now available!", Toast.LENGTH_LONG).show()
                     println(">>>>> [$tag]onRequestPermissionsResult:$requestCode PERMISSION_GRANTED")
-                }
-                else{
-                    Toast.makeText(this, "Location access denied",Toast.LENGTH_LONG).show()
+                } else {
+                    Toast.makeText(this, "Location access denied", Toast.LENGTH_LONG).show()
                     println(">>>>> [$tag]onRequestPermissionsResult:$requestCode PERMISSION_NOT_GRANTED")
 
                 }
@@ -109,19 +166,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         when (item.itemId) {
-            /*R.id.nav_camera -> {
-                // Handle the camera action
-            }*/
+        /*R.id.nav_camera -> {
+            // Handle the camera action
+        }*/
 
-          /*  R.id.nav_manage -> {
+        /*  R.id.nav_manage -> {
 
-            }
-            R.id.nav_share -> {
+          }
+          R.id.nav_share -> {
 
-            }
-            R.id.nav_send -> {
+          }
+          R.id.nav_send -> {
 
-            }*/
+          }*/
         }
 
         drawer_layout.closeDrawer(GravityCompat.START)

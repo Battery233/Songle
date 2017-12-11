@@ -15,31 +15,33 @@ import kotlinx.android.synthetic.main.activity_splash.*
 import java.io.*
 
 class Splash : AppCompatActivity() {
-    private  val tag = "Splash"
+    private val tag = "Splash"
+
     @SuppressLint("SetTextI18n")
-    private inner class NetworkReceiver : BroadcastReceiver(){
-        override fun onReceive(context: Context, intent: Intent){
+    private inner class NetworkReceiver : BroadcastReceiver() {
+        override fun onReceive(context: Context, intent: Intent) {
             val connMgr =
                     context.getSystemService(Context.CONNECTIVITY_SERVICE)
                             as ConnectivityManager
             val networkInfo = connMgr.activeNetworkInfo
             when {
                 networkInfo?.type == ConnectivityManager.TYPE_WIFI -> {                       //give toast about internet type
-                    Toast.makeText(this@Splash,"Connect via WIFI!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@Splash, "Connect via WIFI!", Toast.LENGTH_SHORT).show()
                     println(">>>>> [$tag]OnCreate: NetworkReceiver WIFI")
                 }
                 networkInfo != null -> {
-                    Toast.makeText(this@Splash,"Connect via 4G Data!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@Splash, "Connect via 4G Data!", Toast.LENGTH_SHORT).show()
                     println(">>>>> [$tag]OnCreate: NetworkReceiver DATA")
                 }
                 else -> {
-                    Toast.makeText(this@Splash,"No Internet access!", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this@Splash, "No Internet access!", Toast.LENGTH_SHORT).show()
                     println(">>>>> [$tag]OnCreate: NetworkReceiver No internet")
                 }
             }
         }
 
     }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_splash)
@@ -52,11 +54,10 @@ class Splash : AppCompatActivity() {
         this.registerReceiver(networkReceiver, filter)                 //registerReceiver
 
 
-
         val packageInfoManager = packageManager
         try {
             val pm = packageInfoManager.getPackageInfo("com.example.great.songle", 0)           //Show version number at bottom
-            versionNumber.text = "Version:"+pm.versionName
+            versionNumber.text = "Version:" + pm.versionName
         } catch (e: PackageManager.NameNotFoundException) {
             e.printStackTrace()
             println(">>>>> [$tag]OnCreate: PackageManager.NameNotFoundException")
@@ -75,13 +76,16 @@ class Splash : AppCompatActivity() {
                     println(">>>>>[$tag]songList" + counter + ":" + songList[counter])                //print the list after parser
                     counter++
                 }
+                download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/songs.xml", "songList.xml")
+                val application = this.application as MyApplication
+                application.setsongNumber(songList.size)
                 //Download Lyrics&map
                 counter = 1
 
                 while (counter < 10) {
                     download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/0$counter/lyrics.txt", "Lyric0$counter.txt")
                     var map = 1
-                    while (map<6) {
+                    while (map < 6) {
                         download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/0$counter/map$map.kml", "MapV${map}Song0$counter.kml")
                         map++
                     }
@@ -90,16 +94,14 @@ class Splash : AppCompatActivity() {
                 while (counter < songList.size + 1) {
                     download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/$counter/lyrics.txt", "Lyric$counter.txt")
                     var map = 1
-                    while (map<6) {
+                    while (map < 6) {
                         download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/$counter/map${map}.kml", "MapV${map}Song$counter.kml")
                         map++
                     }
                     counter++
                 }
-            }
-            catch (e:IOException)
-            {
-                Toast.makeText(this,"Download file failed!", Toast.LENGTH_SHORT).show()
+            } catch (e: IOException) {
+                Toast.makeText(this, "Download file failed!", Toast.LENGTH_SHORT).show()
             }
             /*/GET lyric
                 try {
@@ -123,10 +125,10 @@ class Splash : AppCompatActivity() {
 
         val handler = Handler()
         handler.postDelayed({
-            val intent = Intent(this@Splash,MainActivity::class.java)               //Delay 3seconds at splash
+            val intent = Intent(this@Splash, MainActivity::class.java)               //Delay 3seconds at splash
             startActivity(intent)
             this@Splash.finish()
-        },3000)
+        }, 3000)
 
     }
 
@@ -135,13 +137,13 @@ class Splash : AppCompatActivity() {
         super.onStop()
     }*/
 
-    private fun download(urlString: String,fileName:String){
+    private fun download(urlString: String, fileName: String) {
         val input = DownloadXmlTask(DownloadCompleteListener()).loadXmlFromNetwork(urlString)
-        saveFile(input,fileName)
+        saveFile(input, fileName)
         println(">>>>> [$tag]File $fileName Saved!")
     }
 
-    private fun saveFile(data:String,filename:String) //TODO: if no internet
+    private fun saveFile(data: String, filename: String)
     {
         val out: FileOutputStream?
         var writer: BufferedWriter? = null
