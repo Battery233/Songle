@@ -11,7 +11,8 @@ class MyApplication : Application() {
     var currentSong = 8
     var mapVersion = 1
     var songNumber = 0
-    //var mapplaces = 0
+    var accuracy = 20.0
+
 
     fun getcurrentSong(): Int {
         return currentSong
@@ -25,9 +26,9 @@ class MyApplication : Application() {
         return songNumber
     }
 
-    /*fun getmapPlaces(): Int {
-        return mapplaces
-    }*/
+    fun getaccuracy(): Double {
+        return accuracy
+    }
 
     fun setcurrentSong(i: Int) {
         currentSong = i
@@ -41,7 +42,7 @@ class MyApplication : Application() {
         songNumber = i
     }
 
-    /*fun setmapPlaces(i:Int){
-        mapplaces = i
-    }*/
+    fun setaccuracy(i: Double) {
+        accuracy = i
+    }
 }

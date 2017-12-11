@@ -21,7 +21,7 @@ import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.maps.model.Marker
 import com.google.android.gms.maps.model.MarkerOptions
-import kotlinx.android.synthetic.main.app_bar_main.*
+import com.google.maps.android.SphericalUtil
 import java.io.*
 
 
@@ -36,8 +36,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
     //Get the song index number here
     private var currentSong = 1                            //Flag for the song chosen in the list
     private var mapVersion = 1                             //map version
-    private var songNumber = 0
-    val Marker = arrayOfNulls<Marker>(604)
+    private var accuracy = 15.0
+    private val placeMarker = arrayOfNulls<Marker>(604)
+    private var wordsCollected = Array(604) { -1 }
+    private var placeMarkerNumber = 0
+    private var line = 0
+    private var column = 0
+    private var wordsCollectedNumber = 0
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -46,7 +51,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
         val application = this.application as MyApplication
         currentSong = application.getcurrentSong()
         mapVersion = application.getmapVersion()
-        songNumber = application.getsongNumber()
+        accuracy = application.getaccuracy()
         setContentView(R.layout.activity_maps)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -116,17 +121,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
             counter++
         }
         counter = 0
+        placeMarkerNumber = mapMarkers.size
         while (counter < mapMarkers.size && counter < 604) {
             when (mapMarkers[counter].description) {
-                "boring" -> Marker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
-                "notboring" -> Marker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
-                "interesting" -> Marker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
-                "veryinteresting" -> Marker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
-                "unclassified" -> Marker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                "boring" -> placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                "notboring" -> placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                "interesting" -> placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                "veryinteresting" -> placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                "unclassified" -> placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
             }
             counter++
         }
-        //move camera to the center of the play zone
+        //move camera to the center of the play zone55.945025
         val edinburgh = LatLng(55.945025, -3.188550)
         mMap.moveCamera(CameraUpdateFactory.newLatLng(edinburgh))
         mMap.moveCamera(CameraUpdateFactory.zoomTo(15f))
@@ -173,9 +179,27 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
     override fun onLocationChanged(current: Location?) {
         if (current == null) {
             println(">>>>> [$tag] onLocationChanged: Location unknown")
-        } else {
+        } else {//To collect the word:
+            val myLocation = LatLng(current.latitude, current.longitude)
+            var count = 0
             println(""">>>>> [$tag] onLocationChanged: ${current.latitude}/${current.longitude} now""")
-            //To collect the word:
+            while (count < placeMarkerNumber) {
+                val distance = SphericalUtil.computeDistanceBetween(myLocation, placeMarker[count]!!.position)
+                println(">>>>>[$tag]OnLocationChanged distance between location $count: : $myLocation and $placeMarker is $distance m")
+                if (distance < accuracy) {                            //if distance < accuracy, consider the word is collected
+                    println(">>>>>[$tag]placeMarkNumber = $placeMarkerNumber, count = $count")
+                    val index = placeMarker[count]!!.title
+                    line = (index.split("  ")[0]).split(":")[0].toInt()
+                    column = (index.split("  ")[0]).split(":")[1].toInt()
+                    val word = readLyricFile(currentSong, line, column)
+                    println(">>>>>[$tag]collect word: File $currentSong, line $line column $column , word : $word")
+                    Toast.makeText(this, "Word collected: $word", Toast.LENGTH_SHORT).show()
+                    placeMarker[count]!!.isVisible = false
+                    wordsCollected[wordsCollectedNumber] = count                                    //record the index of collected words
+                    wordsCollectedNumber++
+                }
+                count++
+            }
         }
 
     }
@@ -190,11 +214,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
     }
 
     //Locate the specific word in the lyrics
-    private fun readLyricFile(songNumber: Int, line: Int, column: Int): String? {
-        val address = if (songNumber in 1..9)
-            "Lyric0$songNumber.txt"
+    private fun readLyricFile(currentSong: Int, line: Int, column: Int): String? {
+        val address = if (currentSong in 1..9)
+            "Lyric0$currentSong.txt"
         else
-            "Lyric$songNumber.txt"
+            "Lyric$currentSong.txt"
         var text: String? = ""
         try {
             val fileIn: FileInputStream? = this.openFileInput(address)
