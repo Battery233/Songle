@@ -1,5 +1,6 @@
 package com.example.great.songle
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -25,6 +26,7 @@ import kotlinx.android.synthetic.main.content_main.*
 import java.lang.Math.abs
 import java.lang.System.currentTimeMillis
 import android.text.InputFilter
+import kotlinx.android.synthetic.main.nav_header_main.*
 import java.io.BufferedWriter
 import java.io.FileOutputStream
 import java.io.IOException
@@ -39,6 +41,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var currentUser = ""
     private var xmlFlag = false
 
+    @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -102,7 +105,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //the songlist button for choose a song or a random song
         fab2.setOnClickListener { view ->
             Snackbar.make(view, "", Snackbar.LENGTH_SHORT)
-            //add input edittext
+            //add input editText
             val editSongNumber = EditText(this)
             editSongNumber.inputType = InputType.TYPE_CLASS_NUMBER
             editSongNumber.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(2))
@@ -114,7 +117,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             chooseSongBox.setMessage("We have songs from 1 to $songNumber now")
             chooseSongBox.setView(editSongNumber)
             chooseSongBox.setPositiveButton("Random", { dialog, which ->
-                val random: Int = ((abs(Random().nextInt()) + currentTimeMillis()) % 30 + 1).toInt()
+                val random: Int = ((abs(Random().nextInt()) + currentTimeMillis()) % songNumber + 1).toInt()
                 Snackbar.make(view, "Your lucky number is :$random", Snackbar.LENGTH_LONG)
                         .setAction("OK!") {}.show()
                 currentSong = random
@@ -147,6 +150,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
         nav_view.setNavigationItemSelectedListener(this)
+
         //change fonts
         val typeface = Typeface.createFromAsset(assets, "fonts/comicbd.ttf")
         textView2.typeface = typeface
@@ -156,13 +160,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         textView6.typeface = typeface
         val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
         when (hour) {
-            in 6..11 -> textView2.text = "Good morning!"
-            in 12..17 -> textView2.text = "Good afternoon!"
-            else -> textView2.text = "Good evening!"
+            in 6..11 -> textView2.text = getString(R.string.morning)
+            in 12..17 -> textView2.text = getString(R.string.afternoon)
+            else -> textView2.text = getString(R.string.evening)
         }
-        textView6.text = application.getUser()
+        currentUser = application.getUser()
+        textView6.text = currentUser
         if (currentSong == 0) {
-            textView3.text = "↓Select a Song to start!"
+            textView3.text = getString(R.string.SelectSong)
         } else {
             textView3.text = "Song selection: $currentSong"
         }
@@ -204,7 +209,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-    //when the logout button on toolbar is selected
+    //when the logout button  or change password on toolbar is selected
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -215,13 +220,37 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val logoutBox = AlertDialog.Builder(this)
                 logoutBox.setTitle("Logout,$currentUser?")
                 logoutBox.setNegativeButton("Cancel", null)
-                logoutBox.setPositiveButton("Logout!",{ dialog, which ->
-                    saveFile("","currentUser.txt")
+                logoutBox.setPositiveButton("Logout!", { dialog, which ->
+                    saveFile("", "currentUser.txt")
                     val intent = Intent(this, LoginActivity::class.java)
                     startActivity(intent)
                     this.finish()
                 })
                 logoutBox.show()
+                true
+            }
+
+            R.id.action_change_password -> {
+                val editPassword = EditText(this)
+                editPassword.inputType = InputType.TYPE_CLASS_NUMBER
+                editPassword.gravity = Gravity.CENTER
+                editPassword.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(16))
+
+                val changePassword = AlertDialog.Builder(this)
+                changePassword.setTitle("Change password,$currentUser?")
+                changePassword.setMessage("Enter your new password:")
+                changePassword.setView(editPassword)
+                changePassword.setNegativeButton("Cancel", null)
+                changePassword.setPositiveButton("Commit!", { dialog, which ->
+                    val text = editPassword.text.toString()
+                    if (text == "") {
+                        Toast.makeText(this, "Password should not be empty!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        saveFile(text,"password_$currentUser.txt")
+                        Toast.makeText(this, "Password changed!", Toast.LENGTH_SHORT).show()
+                    }
+                })
+                changePassword.show()
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -240,7 +269,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-    private fun saveFile(data: String, filename: String){
+    private fun saveFile(data: String, filename: String) {
         val out: FileOutputStream?
         var writer: BufferedWriter? = null
         try {

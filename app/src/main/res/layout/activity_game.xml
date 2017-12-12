@@ -20,7 +20,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.0"
-        app:srcCompat="@drawable/songle_in_app_icon" />
+        app:srcCompat="@drawable/songle_in_app_icon"
+        android:contentDescription="@string/contentDescription" />
 
     <TextView
         android:id="@+id/textView"
@@ -130,7 +131,9 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout"
         app:layout_constraintVertical_bias="0.45"
-        app:srcCompat="@drawable/smilemouth" />
+        app:srcCompat="@drawable/smilemouth"
+        android:contentDescription="@string/contentDescription"
+        />
 
     <ImageView
         android:id="@+id/imageView10"
@@ -145,6 +148,8 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textInputLayout"
         app:layout_constraintVertical_bias="0.64"
-        app:srcCompat="@drawable/nose" />
+        app:srcCompat="@drawable/nose"
+        android:contentDescription="@string/contentDescription"
+        />
 
 </android.support.constraint.ConstraintLayout>

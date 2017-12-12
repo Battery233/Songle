@@ -9,9 +9,9 @@ import kotlinx.android.synthetic.main.activity_login.*
 import java.io.*
 
 class LoginActivity : AppCompatActivity() {
-    var username: String = ""
-    var password: String = ""
-    val tag = "Login"
+    private var username: String = ""
+    private var password: String = ""
+    private val tag = "Login"
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -20,27 +20,27 @@ class LoginActivity : AppCompatActivity() {
         //press login button
         sign_in_button.setOnClickListener {
             username = user.text.toString()
-            password = passwordin.text.toString()
-            if (username != "") {
+            password = passwordIn.text.toString()
+            if (username != ""&&password!="") {
                 println(">>>>>[$tag] username = $username, password = $password")
                 try {
                     val reader = BufferedReader(InputStreamReader(this.openFileInput("password_$username.txt"))).readLine()
                     if (reader == password) {
                         application.setUser(username)
                         Toast.makeText(this, "Welcome back, $username!", Toast.LENGTH_LONG).show()
-                        saveFile(username,"currentUser.txt")
+                        saveFile(username,"currentUser.txt")                              //to "remember" the user
                         val intent = Intent(this, MainActivity::class.java)
                         startActivity(intent)
                         println(">>>>>[$tag]finish process no1")
                         this.finish()
                     } else {
-                        Toast.makeText(this, "Wrong password!", Toast.LENGTH_LONG).show()
+                        Toast.makeText(this, "Wrong password!", Toast.LENGTH_SHORT).show()
                     }
                 } catch (e: Exception) {
                     // if user not exist, add a new user
                     Toast.makeText(this, "New user added! User name: $username", Toast.LENGTH_LONG).show()
                     saveFile(password,"password_$username.txt")
-                    saveFile(username,"currentUser.txt")
+                    saveFile(username,"currentUser.txt")                                   //to "remember" the user
                     application.setUser(username)
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
@@ -48,7 +48,7 @@ class LoginActivity : AppCompatActivity() {
                     this.finish()
                 }
             } else {
-                Toast.makeText(this, "You must have a name!", Toast.LENGTH_LONG).show()
+                Toast.makeText(this, "You need a name and password!", Toast.LENGTH_LONG).show()
             }
         }
     }

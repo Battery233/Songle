@@ -37,12 +37,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
     private var currentSong = 1                            //Flag for the song chosen in the list
     private var mapVersion = 1                             //map version
     private var accuracy = 15.0
-    private val placeMarker = arrayOfNulls<Marker>(604)
-    private var wordsCollected = Array(604) { -1 }
+    private val maxWords = 604
     private var placeMarkerNumber = 0
     private var line = 0
     private var column = 0
     private var wordsCollectedNumber = 0
+    private val placeMarker = arrayOfNulls<Marker>(maxWords)
+    private var wordsCollected = Array(maxWords) { -1 }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)

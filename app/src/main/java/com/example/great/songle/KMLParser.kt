@@ -36,7 +36,7 @@ class KmlParser {
         parser.require(XmlPullParser.START_TAG, ns, "kml")
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.eventType != XmlPullParser.START_TAG) {
-                println(">>>>> [$tag]readkml->continue")
+                println(">>>>> [$tag]readKml->continue")
                 continue
             }
             if (parser.name == "Document") {

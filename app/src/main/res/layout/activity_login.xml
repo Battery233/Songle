@@ -15,7 +15,9 @@ tools:context="com.example.great.songle.LoginActivity">
     android:id="@+id/loginSongleIcon"
     android:layout_width="wrap_content"
     android:layout_height="wrap_content"
-    android:src="@drawable/splash_square"/>
+    android:src="@drawable/splash_square"
+    android:contentDescription="@string/contentDescription"
+    />
 
     <LinearLayout
         android:id="@+id/email_login_form"
@@ -31,7 +33,7 @@ tools:context="com.example.great.songle.LoginActivity">
                 android:id="@+id/user"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="User name:"
+                android:hint="@string/UserNameHint"
                 android:maxLength="16"
                 android:maxLines="1"
                 android:imeOptions = "actionDone"
@@ -44,7 +46,7 @@ tools:context="com.example.great.songle.LoginActivity">
             android:layout_height="wrap_content">
 
             <EditText
-                android:id="@+id/passwordin"
+                android:id="@+id/passwordIn"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="@string/prompt_password"
@@ -74,7 +76,7 @@ tools:context="com.example.great.songle.LoginActivity">
             android:layout_height="wrap_content"
             android:layout_gravity="center"
             android:textSize = "20sp"
-            android:text="or"
+            android:text="@string/or"
             android:textColor="#00bcd4" />
 
         <ImageButton
@@ -82,7 +84,8 @@ tools:context="com.example.great.songle.LoginActivity">
             android:layout_width="200dp"
             android:layout_height="40dp"
             android:layout_gravity="center_horizontal"
-            android:background="@drawable/login_in_facebook"/>
+            android:background="@drawable/login_in_facebook"
+            android:contentDescription="@string/contentDescription" />
 
     </LinearLayout>
 </LinearLayout>
