@@ -8,10 +8,11 @@ import android.app.Application
  */
 
 class MyApplication : Application() {
-    var currentSong = 8
-    var mapVersion = 1
-    var songNumber = 0
-    var accuracy = 20.0
+    private var currentSong = 0
+    private var mapVersion = 1
+    private var songNumber = 0
+    private var accuracy = 20.0
+    private var user = "User"
 
 
     fun getcurrentSong(): Int {
@@ -24,6 +25,10 @@ class MyApplication : Application() {
 
     fun getsongNumber(): Int {
         return songNumber
+    }
+
+    fun getUser():String{
+        return user
     }
 
     fun getaccuracy(): Double {
@@ -44,5 +49,9 @@ class MyApplication : Application() {
 
     fun setaccuracy(i: Double) {
         accuracy = i
+    }
+
+    fun setUser(i:String){
+        user = i
     }
 }

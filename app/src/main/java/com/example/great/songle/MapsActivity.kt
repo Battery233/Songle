@@ -177,6 +177,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
     }
 
     override fun onLocationChanged(current: Location?) {
+        val noWhere = LatLng(90.0,0.0)
         if (current == null) {
             println(">>>>> [$tag] onLocationChanged: Location unknown")
         } else {//To collect the word:
@@ -195,6 +196,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
                     println(">>>>>[$tag]collect word: File $currentSong, line $line column $column , word : $word")
                     Toast.makeText(this, "Word collected: $word", Toast.LENGTH_SHORT).show()
                     placeMarker[count]!!.isVisible = false
+                    placeMarker[count]!!.position = noWhere
                     wordsCollected[wordsCollectedNumber] = count                                    //record the index of collected words
                     wordsCollectedNumber++
                 }

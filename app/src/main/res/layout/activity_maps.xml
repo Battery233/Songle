@@ -14,4 +14,34 @@ android:layout_height="match_parent">
         android:layout_height="match_parent"
         tools:context="com.example.great.songle.MapsActivity" />
 
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/mapFab1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|start"
+        android:layout_marginStart="16dp"
+        android:layout_marginTop="16dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="#007fff"
+        android:backgroundTint="#007fff"
+        app:borderWidth = "0dp"
+        app:elevation="8dp"
+        app:srcCompat="@drawable/ic_action_search" />
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/mapFab2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginStart="16dp"
+        android:layout_marginBottom="30dp"
+        android:clickable="true"
+        android:focusable="true"
+        android:background="#007fff"
+        android:backgroundTint="#007fff"
+        app:borderWidth = "0dp"
+        app:elevation="8dp"
+        app:srcCompat="@drawable/ic_action_check" />
+
 </android.support.design.widget.CoordinatorLayout>

@@ -95,12 +95,12 @@ class Splash : AppCompatActivity() {
                     download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/$counter/lyrics.txt", "Lyric$counter.txt")
                     var map = 1
                     while (map < 6) {
-                        download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/$counter/map${map}.kml", "MapV${map}Song$counter.kml")
+                        download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/$counter/map$map.kml", "MapV${map}Song$counter.kml")
                         map++
                     }
                     counter++
                 }
-            } catch (e: IOException) {
+            } catch (e: Exception) {
                 Toast.makeText(this, "Download file failed!", Toast.LENGTH_SHORT).show()
             }
             /*/GET lyric
@@ -123,13 +123,25 @@ class Splash : AppCompatActivity() {
 
         }).start()
 
+        //find out if has logged in
         val handler = Handler()
         handler.postDelayed({
-            val intent = Intent(this@Splash, MainActivity::class.java)               //Delay 3seconds at splash
-            startActivity(intent)
+            try {
+                val reader = BufferedReader(InputStreamReader(this.openFileInput("currentUser.txt"))).readLine()
+                if(reader!="") {
+                    val application = this.application as MyApplication
+                    application.setUser(reader)
+                    Toast.makeText(this, "Welcome back, $reader!", Toast.LENGTH_LONG).show()
+                    val intent = Intent(this@Splash, MainActivity::class.java)               //Delay 3seconds at splash
+                    startActivity(intent)
+                }
+            }
+            catch (e:Exception){
+                val intent = Intent(this@Splash, LoginActivity::class.java)               //Delay 3seconds at splash
+                startActivity(intent)
+            }
             this@Splash.finish()
         }, 3000)
-
     }
 
     /*override fun onStop() {

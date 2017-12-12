@@ -1,29 +1,43 @@
 package com.example.great.songle
 
+import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.graphics.Typeface
 import android.os.Bundle
 import android.support.design.widget.NavigationView
+import android.support.design.widget.Snackbar
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v4.view.GravityCompat
 import android.support.v7.app.ActionBarDrawerToggle
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
+import android.text.InputType
+import android.view.Gravity
 import android.view.Menu
 import android.view.MenuItem
+import android.widget.EditText
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
+import java.lang.Math.abs
+import java.lang.System.currentTimeMillis
+import android.text.InputFilter
+import java.io.BufferedWriter
+import java.io.FileOutputStream
+import java.io.IOException
+import java.io.OutputStreamWriter
+import java.util.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private val tag = "MainActivity"
     private var currentSong = 1
     private var mapVersion = 5
     private var songNumber = 0
-    var xmlFlag = false
-    //var fileIn:String?=null
+    private var currentUser = ""
+    private var xmlFlag = false
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -44,11 +58,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         currentSong = application.getcurrentSong()
         mapVersion = application.getmapVersion()
         songNumber = application.getsongNumber()
+        currentUser = application.getUser()
 
         //Check local file if internet is not available
         if (songNumber == 0) {
             try {
-                val fileIn = this.openFileInput("songList.xml")
+                this.openFileInput("songList.xml")
                 xmlFlag = true
             } catch (e: Exception) {
                 Toast.makeText(this, "No song list available", Toast.LENGTH_SHORT).show()
@@ -65,41 +80,66 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
 
+        //the start game button
         fab.setOnClickListener {
-            /*view ->
-                      Snackbar.make(view, "Clicked!", Snackbar.LENGTH_LONG)
-                               .setAction("Close") {Toast.makeText(this, "Yes!",Toast.LENGTH_SHORT).show() }.show()*/
-            /*fileIn = if (currentSong in 1..9)
-                "MapV${mapVersion}Song0$currentSong.kml"
-            else
-                "MapV${mapVersion}Song$currentSong.kml"
-            val file = File(fileIn)
-            if(file.exists()){
-            }else{
-                Toast.makeText(this,"Downloading required files:$fileIn",Toast.LENGTH_LONG).show()
-            }*/
-            val kmlLocation: String? = if (currentSong in 1..9)
-                "MapV${mapVersion}Song0$currentSong.kml"
-            else
-                "MapV${mapVersion}Song$currentSong.kml"
-
-            try {
-                this.openFileInput(kmlLocation)
-                /*println(">>>>>[$tag]KML stream input: $fileIn")
-                val mapMarkers = KmlParser().parse(fileIn)
-                println(">>>>> [$tag] Load Map$currentSong.kml : $fileIn")
-                var counter = 0
-                while (counter < mapMarkers!!.size) {
-                    println(">>>>> [$tag] MapMarkers${1 + counter}=" + mapMarkers[counter])
-                    counter++
+            if (currentSong != 0) {
+                val kmlLocation: String? = if (currentSong in 1..9)
+                    "MapV${mapVersion}Song0$currentSong.kml"
+                else
+                    "MapV${mapVersion}Song$currentSong.kml"
+                try {
+                    this.openFileInput(kmlLocation)
+                    val intent = Intent(this, MapsActivity::class.java)                      //goto map activity
+                    startActivity(intent)
+                } catch (e: Exception) {
+                    Toast.makeText(this, "Load KML failed. Restart the game when Internet is available!", Toast.LENGTH_SHORT).show()
                 }
-                application.setmapPlaces(counter)*/
-
-                val intent = Intent(this, MapsActivity::class.java)                      //goto map activity
-                startActivity(intent)
-            } catch (e: Exception) {
-                Toast.makeText(this, "Load KML failed. Restart the game when Internet is available!", Toast.LENGTH_SHORT).show()
+            } else {
+                Toast.makeText(this, "← Choose a song first!", Toast.LENGTH_SHORT).show()
             }
+        }
+
+        //the songlist button for choose a song or a random song
+        fab2.setOnClickListener { view ->
+            Snackbar.make(view, "", Snackbar.LENGTH_SHORT)
+            //add input edittext
+            val editSongNumber = EditText(this)
+            editSongNumber.inputType = InputType.TYPE_CLASS_NUMBER
+            editSongNumber.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(2))
+            editSongNumber.gravity = Gravity.CENTER
+
+            //To get song number input
+            val chooseSongBox = AlertDialog.Builder(this)
+            chooseSongBox.setTitle("Choose a song to start:")
+            chooseSongBox.setMessage("We have songs from 1 to $songNumber now")
+            chooseSongBox.setView(editSongNumber)
+            chooseSongBox.setPositiveButton("Random", { dialog, which ->
+                val random: Int = ((abs(Random().nextInt()) + currentTimeMillis()) % 30 + 1).toInt()
+                Snackbar.make(view, "Your lucky number is :$random", Snackbar.LENGTH_LONG)
+                        .setAction("OK!") {}.show()
+                currentSong = random
+                textView3.text = "Song selection: $currentSong"
+                application.setcurrentSong(currentSong)
+            })
+            chooseSongBox.setNegativeButton("Select", { dialog, which ->
+                val text = editSongNumber.text.toString()
+                if (text == "") {
+                    Toast.makeText(this, "You really need to input something!", Toast.LENGTH_SHORT).show()
+                } else {
+                    val input = text.toInt()
+                    if (input == 0 || input > songNumber) {
+                        Snackbar.make(view, "This is not a valid number", Snackbar.LENGTH_LONG)
+                                .setAction("OK!") {}.show()
+                    } else {
+                        Snackbar.make(view, "Song $input selected! Good luck.", Snackbar.LENGTH_LONG)
+                                .setAction("OK!") {}.show()
+                        currentSong = input
+                        textView3.text = "Song selection: $currentSong"
+                        application.setcurrentSong(currentSong)
+                    }
+                }
+            })
+            chooseSongBox.show()
         }
 
         val toggle = ActionBarDrawerToggle(
@@ -113,6 +153,19 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         textView3.typeface = typeface
         textView4.typeface = typeface
         textView5.typeface = typeface
+        textView6.typeface = typeface
+        val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
+        when (hour) {
+            in 6..11 -> textView2.text = "Good morning!"
+            in 12..17 -> textView2.text = "Good afternoon!"
+            else -> textView2.text = "Good evening!"
+        }
+        textView6.text = application.getUser()
+        if (currentSong == 0) {
+            textView3.text = "↓Select a Song to start!"
+        } else {
+            textView3.text = "Song selection: $currentSong"
+        }
         textView4.text = "There are $songNumber Songs in the list"
         println(">>>>> [$tag]OnCreate")
     }
@@ -128,7 +181,6 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 } else {
                     Toast.makeText(this, "Location access denied", Toast.LENGTH_LONG).show()
                     println(">>>>> [$tag]onRequestPermissionsResult:$requestCode PERMISSION_NOT_GRANTED")
-
                 }
             }
         }
@@ -152,13 +204,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
+    //when the logout button on toolbar is selected
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         println(">>>>> [$tag]onOptionsItemSelected")
         return when (item.itemId) {
-            R.id.action_settings -> true
+            R.id.action_logout -> {
+                val logoutBox = AlertDialog.Builder(this)
+                logoutBox.setTitle("Logout,$currentUser?")
+                logoutBox.setNegativeButton("Cancel", null)
+                logoutBox.setPositiveButton("Logout!",{ dialog, which ->
+                    saveFile("","currentUser.txt")
+                    val intent = Intent(this, LoginActivity::class.java)
+                    startActivity(intent)
+                    this.finish()
+                })
+                logoutBox.show()
+                true
+            }
             else -> super.onOptionsItemSelected(item)
         }
     }
@@ -169,20 +234,33 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         /*R.id.nav_camera -> {
             // Handle the camera action
         }*/
-
-        /*  R.id.nav_manage -> {
-
-          }
-          R.id.nav_share -> {
-
-          }
-          R.id.nav_send -> {
-
-          }*/
         }
-
         drawer_layout.closeDrawer(GravityCompat.START)
         println(">>>>> [$tag]onNavigationItemSelected")
         return true
+    }
+
+    private fun saveFile(data: String, filename: String){
+        val out: FileOutputStream?
+        var writer: BufferedWriter? = null
+        try {
+            out = this.openFileOutput(filename, Context.MODE_PRIVATE)
+            writer = BufferedWriter(OutputStreamWriter(out))
+            writer.write(data)
+            println(">>>>> [$tag]File writeData")
+        } catch (e: IOException) {
+            println(">>>>> [$tag]File writeDataError")
+            e.printStackTrace()
+        } finally {
+            try {
+                if (writer != null) {
+                    writer.close()
+                    println(">>>>> [$tag]File writeClose")
+                }
+            } catch (e: IOException) {
+                println(">>>>> [$tag]File writeCloseError")
+                e.printStackTrace()
+            }
+        }
     }
 }
