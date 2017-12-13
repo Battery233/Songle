@@ -9,10 +9,14 @@ import android.app.Application
 
 class MyApplication : Application() {
     private var currentSong = 0
-    private var mapVersion = 1
+    private var mapVersion = 5
     private var songNumber = 0
-    private var accuracy = 20.0
+    private var accuracy = 15.0
     private var user = "User"
+    private var veryInteresting = true
+    private var interesting = false
+    private var notBoring = false
+    private var boring = false
 
 
     fun getcurrentSong(): Int {
@@ -35,6 +39,22 @@ class MyApplication : Application() {
         return accuracy
     }
 
+    fun getVeryInteresting():Boolean{
+        return veryInteresting
+    }
+
+    fun getInteresting():Boolean{
+        return interesting
+    }
+
+    fun getNotBoring():Boolean{
+        return notBoring
+    }
+
+    fun getBoring():Boolean{
+        return boring
+    }
+
     fun setcurrentSong(i: Int) {
         currentSong = i
     }
@@ -54,4 +74,21 @@ class MyApplication : Application() {
     fun setUser(i:String){
         user = i
     }
+
+    fun setVeryInteresting(i:Boolean){
+        veryInteresting = i
+    }
+
+    fun setInteresting(i:Boolean){
+        interesting = i
+    }
+
+    fun setNotBoring(i:Boolean){
+        notBoring = i
+    }
+
+    fun setBoring(i:Boolean){
+        boring = i
+    }
 }
+

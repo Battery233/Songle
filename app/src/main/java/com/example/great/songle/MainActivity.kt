@@ -1,6 +1,9 @@
+@file:Suppress("DEPRECATION")
+
 package com.example.great.songle
 
 import android.annotation.SuppressLint
+import android.content.ClipboardManager
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -26,7 +29,11 @@ import kotlinx.android.synthetic.main.content_main.*
 import java.lang.Math.abs
 import java.lang.System.currentTimeMillis
 import android.text.InputFilter
-import kotlinx.android.synthetic.main.nav_header_main.*
+import kotlinx.android.synthetic.main.switch_item_classify.*
+import kotlinx.android.synthetic.main.switch_item1.*
+import kotlinx.android.synthetic.main.switch_item2.*
+import kotlinx.android.synthetic.main.switch_item3.*
+import kotlinx.android.synthetic.main.switch_item4.*
 import java.io.BufferedWriter
 import java.io.FileOutputStream
 import java.io.IOException
@@ -39,6 +46,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var mapVersion = 5
     private var songNumber = 0
     private var currentUser = ""
+    private var accuracyGps = 15.0
     private var xmlFlag = false
 
     @SuppressLint("SetTextI18n")
@@ -62,14 +70,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         mapVersion = application.getmapVersion()
         songNumber = application.getsongNumber()
         currentUser = application.getUser()
-
+        accuracyGps = application.getaccuracy()
         //Check local file if internet is not available
         if (songNumber == 0) {
             try {
                 this.openFileInput("songList.xml")
                 xmlFlag = true
             } catch (e: Exception) {
-                Toast.makeText(this, "No song list available", Toast.LENGTH_SHORT).show()
+                Toast.makeText(this, "No Local song list available", Toast.LENGTH_SHORT).show()
             }
         }
         if (xmlFlag) {
@@ -106,43 +114,53 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         fab2.setOnClickListener { view ->
             Snackbar.make(view, "", Snackbar.LENGTH_SHORT)
             //add input editText
-            val editSongNumber = EditText(this)
-            editSongNumber.inputType = InputType.TYPE_CLASS_NUMBER
-            editSongNumber.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(2))
-            editSongNumber.gravity = Gravity.CENTER
+            if (songNumber != 0) {
+                val editSongNumber = EditText(this)
+                editSongNumber.inputType = InputType.TYPE_CLASS_NUMBER
+                editSongNumber.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(2))
+                editSongNumber.gravity = Gravity.CENTER
 
-            //To get song number input
-            val chooseSongBox = AlertDialog.Builder(this)
-            chooseSongBox.setTitle("Choose a song to start:")
-            chooseSongBox.setMessage("We have songs from 1 to $songNumber now")
-            chooseSongBox.setView(editSongNumber)
-            chooseSongBox.setPositiveButton("Random", { dialog, which ->
-                val random: Int = ((abs(Random().nextInt()) + currentTimeMillis()) % songNumber + 1).toInt()
-                Snackbar.make(view, "Your lucky number is :$random", Snackbar.LENGTH_LONG)
-                        .setAction("OK!") {}.show()
-                currentSong = random
-                textView3.text = "Song selection: $currentSong"
-                application.setcurrentSong(currentSong)
-            })
-            chooseSongBox.setNegativeButton("Select", { dialog, which ->
-                val text = editSongNumber.text.toString()
-                if (text == "") {
-                    Toast.makeText(this, "You really need to input something!", Toast.LENGTH_SHORT).show()
-                } else {
-                    val input = text.toInt()
-                    if (input == 0 || input > songNumber) {
-                        Snackbar.make(view, "This is not a valid number", Snackbar.LENGTH_LONG)
-                                .setAction("OK!") {}.show()
+                //To get song number input
+                val chooseSongBox = AlertDialog.Builder(this)
+                chooseSongBox.setTitle("Choose a song to start:")
+                chooseSongBox.setMessage("We have songs from 1 to $songNumber now")
+                chooseSongBox.setView(editSongNumber)
+                chooseSongBox.setPositiveButton("Random", { _, _ ->
+                    val random: Int = ((abs(Random().nextInt()) + currentTimeMillis()) % songNumber + 1).toInt()
+                    Snackbar.make(view, "Your lucky number is :$random", Snackbar.LENGTH_LONG)
+                            .setAction("OK!") {}.show()
+                    currentSong = random
+                    textView3.text = "Song selection: $currentSong"
+                    application.setcurrentSong(currentSong)
+                })
+                chooseSongBox.setNegativeButton("Select", { _, _ ->
+                    val text = editSongNumber.text.toString()
+                    if (text == "") {
+                        Toast.makeText(this, "You really need to input something!", Toast.LENGTH_SHORT).show()
                     } else {
-                        Snackbar.make(view, "Song $input selected! Good luck.", Snackbar.LENGTH_LONG)
-                                .setAction("OK!") {}.show()
-                        currentSong = input
-                        textView3.text = "Song selection: $currentSong"
-                        application.setcurrentSong(currentSong)
+                        val input = text.toInt()
+                        if (input == 0 || input > songNumber) {
+                            Snackbar.make(view, "This is not a valid number", Snackbar.LENGTH_LONG)
+                                    .setAction("OK!") {}.show()
+                        } else {
+                            Snackbar.make(view, "Song $input selected! Good luck.", Snackbar.LENGTH_LONG)
+                                    .setAction("OK!") {}.show()
+                            currentSong = input
+                            textView3.text = "Song selection: $currentSong"
+                            application.setcurrentSong(currentSong)
+                        }
                     }
-                }
-            })
-            chooseSongBox.show()
+                })
+                chooseSongBox.show()
+            } else {
+                val chooseSongBox = AlertDialog.Builder(this)
+                chooseSongBox.setTitle("No Internet access!")
+                chooseSongBox.setMessage("You need to download files when first start the game.\nRestart the game when internet is available!")
+                chooseSongBox.setPositiveButton("Quit!", { _, _ ->
+                    this.finish()
+                })
+                chooseSongBox.show()
+            }
         }
 
         val toggle = ActionBarDrawerToggle(
@@ -150,6 +168,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
         nav_view.setNavigationItemSelectedListener(this)
+        nav_view.menu.getItem(0).isChecked = true                             //start with the game page selected in the drawer
 
         //change fonts
         val typeface = Typeface.createFromAsset(assets, "fonts/comicbd.ttf")
@@ -172,6 +191,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             textView3.text = "Song selection: $currentSong"
         }
         textView4.text = "There are $songNumber Songs in the list"
+
         println(">>>>> [$tag]OnCreate")
     }
 
@@ -205,6 +225,90 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onCreateOptionsMenu(menu: Menu): Boolean {
         // Inflate the menu; this adds items to the action bar if it is present.
         menuInflater.inflate(R.menu.main, menu)
+        wordSwitch.isChecked = true
+        wordSwitch1.isChecked = true
+        val application = this.application as MyApplication
+        //set listen on drawer switches and save the settings
+        wordSwitch.setOnCheckedChangeListener({ _, isChecked ->
+            if (isChecked) {
+                mapVersion = 5
+                application.setmapVersion(5)
+                if (!wordSwitch1.isChecked && !wordSwitch2.isChecked && !wordSwitch3.isChecked && !wordSwitch4.isChecked) {
+                    wordSwitch1.isChecked = true
+                }
+            } else {
+                mapVersion = 1
+                application.setmapVersion(1)
+                //make other switches false
+                wordSwitch1.isChecked = false
+                wordSwitch2.isChecked = false
+                wordSwitch3.isChecked = false
+                wordSwitch4.isChecked = false
+            }
+        })
+
+        wordSwitch1.setOnCheckedChangeListener({ _, isChecked ->
+            if (isChecked) {
+                mapVersion = 5
+                application.setmapVersion(5)
+                application.setVeryInteresting(true)
+                wordSwitch.isChecked = true
+            } else {
+                application.setVeryInteresting(false)
+                if (!wordSwitch2.isChecked && !wordSwitch3.isChecked && !wordSwitch4.isChecked) {        //if all the classify is canceled, set to unclassified mood
+                    mapVersion = 1
+                    application.setmapVersion(1)
+                    wordSwitch.isChecked = false
+                }
+            }
+        })
+        wordSwitch2.setOnCheckedChangeListener({ _, isChecked ->
+            if (isChecked) {
+                mapVersion = 5
+                application.setmapVersion(5)
+                application.setInteresting(true)
+                wordSwitch.isChecked = true
+            } else {
+                application.setInteresting(false)
+                if (!wordSwitch1.isChecked && !wordSwitch3.isChecked && !wordSwitch4.isChecked) {
+                    mapVersion = 1
+                    application.setmapVersion(1)
+                    wordSwitch.isChecked = false
+                }
+            }
+        })
+        wordSwitch3.setOnCheckedChangeListener({ _, isChecked ->
+            if (isChecked) {
+                mapVersion = 5
+                application.setmapVersion(5)
+                application.setNotBoring(true)
+                wordSwitch.isChecked = true
+            } else {
+                application.setNotBoring(false)
+                if (!wordSwitch1.isChecked && !wordSwitch2.isChecked && !wordSwitch4.isChecked) {
+                    mapVersion = 1
+                    application.setmapVersion(1)
+                    wordSwitch.isChecked = false
+                }
+            }
+        })
+        wordSwitch4.setOnCheckedChangeListener({ _, isChecked ->
+            if (isChecked) {
+                mapVersion = 5
+                application.setmapVersion(5)
+                application.setBoring(true)
+                wordSwitch.isChecked = true
+            } else {
+                application.setBoring(false)
+                if (!wordSwitch1.isChecked && !wordSwitch2.isChecked && !wordSwitch3.isChecked) {
+                    mapVersion = 1
+                    application.setmapVersion(1)
+                    wordSwitch.isChecked = false
+                }
+            }
+        })
+
+
         println(">>>>> [$tag]onCreateOptionsMenu")
         return true
     }
@@ -220,7 +324,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 val logoutBox = AlertDialog.Builder(this)
                 logoutBox.setTitle("Logout,$currentUser?")
                 logoutBox.setNegativeButton("Cancel", null)
-                logoutBox.setPositiveButton("Logout!", { dialog, which ->
+                logoutBox.setPositiveButton("Logout!", { _, _ ->
                     saveFile("", "currentUser.txt")
                     val intent = Intent(this, LoginActivity::class.java)
                     startActivity(intent)
@@ -241,12 +345,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 changePassword.setMessage("Enter your new password:")
                 changePassword.setView(editPassword)
                 changePassword.setNegativeButton("Cancel", null)
-                changePassword.setPositiveButton("Commit!", { dialog, which ->
+                changePassword.setPositiveButton("Commit!", { _, _ ->
                     val text = editPassword.text.toString()
                     if (text == "") {
                         Toast.makeText(this, "Password should not be empty!", Toast.LENGTH_SHORT).show()
                     } else {
-                        saveFile(text,"password_$currentUser.txt")
+                        saveFile(text, "password_$currentUser.txt")
                         Toast.makeText(this, "Password changed!", Toast.LENGTH_SHORT).show()
                     }
                 })
@@ -260,9 +364,50 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         // Handle navigation view item clicks here.
         when (item.itemId) {
-        /*R.id.nav_camera -> {
-            // Handle the camera action
-        }*/
+            R.id.nav_start -> {
+            }
+            R.id.nav_share -> {         //Share gitHub link
+                val cm = getSystemService(Context.CLIPBOARD_SERVICE) as ClipboardManager
+                cm.text = "https://github.com/Battery233"
+                Toast.makeText(this, "Link copied in clipboard\nShare with your friends!", Toast.LENGTH_LONG).show()
+                val sendIntent = Intent()
+                sendIntent.action = Intent.ACTION_SEND
+                sendIntent.putExtra(Intent.EXTRA_TEXT, "Try this fantastic game call Songle. Link here:\nhttps://github.com/Battery233")
+                sendIntent.type = "text/plain"
+                startActivity(sendIntent)
+            }
+            R.id.nav_accuracy -> {             //for changing accuracy settings
+                val editAccuracy = EditText(this)
+                editAccuracy.inputType = InputType.TYPE_CLASS_NUMBER
+                editAccuracy.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(2))
+                editAccuracy.gravity = Gravity.CENTER
+
+                //To get accuracy number input
+                val chooseSongBox = AlertDialog.Builder(this)
+                chooseSongBox.setTitle("Change word collection distance(Default 15m):")
+                chooseSongBox.setMessage("Current value is ${accuracyGps.toInt()}m:")
+                chooseSongBox.setView(editAccuracy)
+                chooseSongBox.setPositiveButton("Submit!", { _, _ ->
+                    val text = editAccuracy.text.toString()
+                    if (text == "") {
+                        Toast.makeText(this, "You really need to input something!", Toast.LENGTH_SHORT).show()
+                    } else {
+                        val i = text.toDouble()
+                        when {
+                            i < 5 -> Toast.makeText(this, "Distance should no less than 5m", Toast.LENGTH_SHORT).show()
+                            i > 50 -> Toast.makeText(this, "Distance should no more than 50m", Toast.LENGTH_SHORT).show()
+                            else -> {
+                                accuracyGps = i
+                                val application = this.application as MyApplication
+                                application.setaccuracy(accuracyGps)
+                                Toast.makeText(this, "Current max collection distance: ${accuracyGps.toInt()} m", Toast.LENGTH_SHORT).show()
+                            }
+                        }
+                    }
+                })
+                chooseSongBox.setNegativeButton("Cancel", null)
+                chooseSongBox.show()
+            }
         }
         drawer_layout.closeDrawer(GravityCompat.START)
         println(">>>>> [$tag]onNavigationItemSelected")

@@ -85,20 +85,14 @@ class Splash : AppCompatActivity() {
 
                 while (counter < 10) {
                     download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/0$counter/lyrics.txt", "Lyric0$counter.txt")
-                    var map = 1
-                    while (map < 6) {
-                        download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/0$counter/map$map.kml", "MapV${map}Song0$counter.kml")
-                        map++
-                    }
+                    download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/0$counter/map1.kml", "MapV1Song0$counter.kml")
+                    download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/0$counter/map5.kml", "MapV5Song0$counter.kml")
                     counter++
                 }
                 while (counter < songList.size + 1) {
                     download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/$counter/lyrics.txt", "Lyric$counter.txt")
-                    var map = 1
-                    while (map < 6) {
-                        download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/$counter/map$map.kml", "MapV${map}Song$counter.kml")
-                        map++
-                    }
+                    download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/$counter/map1.kml", "MapV1Song$counter.kml")
+                    download("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/$counter/map5.kml", "MapV5Song$counter.kml")
                     counter++
                 }
             } catch (e: Exception) {

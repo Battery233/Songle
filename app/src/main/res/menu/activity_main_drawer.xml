@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:showIn="navigation_view">
 
@@ -8,24 +9,55 @@
         <item
             android:id="@+id/nav_start"
             android:icon="@drawable/ic_game"
-            android:title="Start" />
+            android:title="@string/DrawerStart" />
         <item
             android:id="@+id/nav_info"
             android:icon="@drawable/ic_information"
-            android:title="Info" />
-        <item
+            android:title="@string/DrawerInfo" />
+        <!--item
             android:id="@+id/nav_preference"
             android:icon="@drawable/ic_menu_manage"
-            android:title="Preference" />
+            android:title="@string/DrawerPreference" />-->
     </group>
 
-    <item android:title="Communicate">
+    <item android:title="@string/DrawerTittle">
         <menu>
+            <item
+                android:id="@+id/app_bar_switch"
+                android:icon="@drawable/ic_action_classify"
+                android:title="@string/wordsClassify"
+                app:actionLayout="@layout/switch_item_classify" />
+            <item
+                android:id="@+id/app_bar_filter1"
+                android:icon="@drawable/ic_action_word1"
+                android:title="@string/wordsVeryInteresting"
+                app:actionLayout="@layout/switch_item1" />
+            <item
+                android:id="@+id/app_bar_filter2"
+                android:icon="@drawable/ic_action_word2"
+                android:title="@string/wordsInteresting"
+                app:actionLayout="@layout/switch_item2" />
+            <item
+                android:id="@+id/app_bar_filter3"
+                android:icon="@drawable/ic_action_word3"
+                android:title="@string/wordsNotBoring"
+                app:actionLayout="@layout/switch_item3" />
+            <item
+                android:id="@+id/app_bar_filter4"
+                android:icon="@drawable/ic_action_word4"
+                android:title="@string/wordsBoring"
+                app:actionLayout="@layout/switch_item4" />
+            <item
+                android:id="@+id/nav_accuracy"
+                android:icon="@drawable/ic_action_accuracy"
+                android:title="@string/accuracy"
+                />
             <item
                 android:id="@+id/nav_share"
                 android:icon="@drawable/ic_menu_share"
-                android:title="Share" />
+                android:title="@string/DrawerShare" />
         </menu>
     </item>
+
 
 </menu>

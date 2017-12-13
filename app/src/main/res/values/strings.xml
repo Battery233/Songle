@@ -16,6 +16,18 @@
     <string name="SelectSong">↓Select a Song to start!</string>
     <string name="LetsGo"><![CDATA["Let's go! —>"]]></string>
     <string name="NavHeader">Welcome! Ready to walk around?</string>
+    <string name="DrawerStart">Start</string>
+    <string name="DrawerInfo">Info</string>
+    <string name="DrawerPreference">Preference</string>
+    <string name="DrawerTittle">Preference</string>
+    <string name="DrawerShare">Share</string>
+    <string name="accuracy">Location accuracy</string>
+    <string name="wordsClassify">Classify words?</string>
+    <string name="wordsVeryInteresting">VeryInteresting words</string>
+    <string name="wordsInteresting">Interesting words</string>
+    <string name="wordsNotBoring">NotBoring words</string>
+    <string name="wordsBoring">Boring words</string>
+
 
     <!-- Strings related to login -->
     <string name="UserNameHint">User name:</string>
