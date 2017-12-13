@@ -110,7 +110,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
 
-        //the songlist button for choose a song or a random song
+        //the songList button for choose a song or a random song
         fab2.setOnClickListener { view ->
             Snackbar.make(view, "", Snackbar.LENGTH_SHORT)
             //add input editText
@@ -372,7 +372,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 Toast.makeText(this, "Link copied in clipboard\nShare with your friends!", Toast.LENGTH_LONG).show()
                 val sendIntent = Intent()
                 sendIntent.action = Intent.ACTION_SEND
-                sendIntent.putExtra(Intent.EXTRA_TEXT, "Try this fantastic game call Songle. Link here:\nhttps://github.com/Battery233")
+                sendIntent.putExtra(Intent.EXTRA_TEXT, "Try this fantastic game called Songle. Link here:\nhttps://github.com/Battery233")
                 sendIntent.type = "text/plain"
                 startActivity(sendIntent)
             }

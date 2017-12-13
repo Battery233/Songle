@@ -4,9 +4,14 @@ import android.content.Context
 import android.content.Intent
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
+import android.os.Handler
+import android.support.v7.app.AlertDialog
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_login.*
 import java.io.*
+import android.util.DisplayMetrics
+
+
 
 class LoginActivity : AppCompatActivity() {
     private var username: String = ""
@@ -16,6 +21,21 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
+        //Test if the Screen resolution reached the requirement of at least 1280 Pixels in height
+        val metrics = DisplayMetrics()
+        windowManager.defaultDisplay.getRealMetrics(metrics)
+        println(">>>>>[$tag] heightPixels = ${metrics.heightPixels}")
+        if(metrics.heightPixels<1280){
+            val handler = Handler()
+            val chooseSongBox = AlertDialog.Builder(this)
+            chooseSongBox.setTitle("Sorry you can't run Songle on this device!")
+            chooseSongBox.setMessage("You need a device with at least 1280 heightPixels to play Songle\nGame will quit on 5 seconds")
+            chooseSongBox.show()
+            handler.postDelayed({
+                this.finish()
+            }, 5000)
+        }
+
         val application = this.application as MyApplication
         //press login button
         sign_in_button.setOnClickListener {

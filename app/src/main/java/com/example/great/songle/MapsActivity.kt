@@ -1,6 +1,7 @@
 package com.example.great.songle
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.support.v7.app.AppCompatActivity
@@ -35,7 +36,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
     private val permissionsRequestAccessFineLocation = 1
     private var mLastLocation: Location? = null             // getLastLocation can return null
     private val tag = "MapsActivity"
-    //Get the song index number here
+    //Get the song list information here
     private var currentSong = 1                            //Flag for the song chosen in the list
     private var mapVersion = 1                             //map version
     private var accuracy = 15.0
@@ -44,18 +45,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
     private var placeMarkerNumber = 0
     private var line = 0
     private var column = 0
-    private var wordsCollectedNumber = 0
     private var totalPointsMax = totalWordTypes * (maxNumber + 1)
     private val placeMarker = arrayOfNulls<Marker>(totalPointsMax)
-    private var wordsCollected = Array(totalPointsMax) { -1 }
     private var veryInteresting = true
     private var interesting = false
     private var notBoring = false
     private var boring = false
     private val noWhere = LatLng(90.0, 0.0)
     private var wordsAddedVisible = 0
-    private var currentSongInfo:XmlParser.SongInfo? = null
+    private var currentSongInfo: XmlParser.SongInfo? = null
     private var hintTime = 0
+    private var currentUser = ""
+    private var collectedWordsIndex = ArrayList<Int>()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,7 +70,9 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
         interesting = application.getInteresting()
         notBoring = application.getNotBoring()
         boring = application.getBoring()
-        currentSongInfo = XmlParser().parse(this.openFileInput("songList.xml"))[currentSong-1]
+        currentUser = application.getUser()
+        currentSongInfo = XmlParser().parse(this.openFileInput("songList.xml"))[currentSong - 1]
+        collectedWordsIndex.add(0)
         setContentView(R.layout.activity_maps)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -94,7 +97,26 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
         super.onStop()
         if (mGoogleApiClient.isConnected)
             mGoogleApiClient.disconnect()
+        //save the history of collected marks
+        var saveMark = collectedWordsIndex[0].toString()
+        var i = 1
+        while (i <= collectedWordsIndex[0]) {
+            saveMark = saveMark.plus(" ")
+            saveMark = saveMark.plus(collectedWordsIndex[i].toString())
+            i++
+        }
+        saveFile(saveMark,"user${currentUser}Song${currentSong}V$mapVersion.txt")
         println(">>>>> [$tag]onStop")
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        println(">>>>> [$tag]onDestroy")
+    }
+
+    override fun onRestart() {
+        super.onRestart()
+        println(">>>>> [$tag]onRestart")
     }
 
     /**
@@ -196,15 +218,15 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
 
         //set the event when the hint button is clicked
         mapHint.setOnClickListener {
-            val i = hintTime%4
+            val i = hintTime % 4
             val hint1 = currentSongInfo!!.Title[0]
             val hint2 = currentSongInfo!!.Title.length
             val hint3 = currentSongInfo!!.Artist[0]
-            when(i){
-                0->Toast.makeText(this,"Hint1:\nThe title starts with $hint1",Toast.LENGTH_SHORT).show()
-                1->Toast.makeText(this,"Hint2:\nThe title has $hint2 words",Toast.LENGTH_SHORT).show()
-                2->Toast.makeText(this,"Hint3:\nThe artist name starts with $hint3",Toast.LENGTH_SHORT).show()
-                3->Toast.makeText(this,"You have got enough hits!",Toast.LENGTH_SHORT).show()
+            when (i) {
+                0 -> Toast.makeText(this, "Hint1:\nThe title starts with $hint1", Toast.LENGTH_SHORT).show()
+                1 -> Toast.makeText(this, "Hint2:\nThe title has $hint2 words", Toast.LENGTH_SHORT).show()
+                2 -> Toast.makeText(this, "Hint3:\nThe artist name starts with $hint3", Toast.LENGTH_SHORT).show()
+                3 -> Toast.makeText(this, "You have got enough hits!", Toast.LENGTH_SHORT).show()
             }
             hintTime++ //Todo you saw hints x times
         }
@@ -264,12 +286,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
                     line = (index.split("  ")[0]).split(":")[0].toInt()
                     column = (index.split("  ")[0]).split(":")[1].toInt()
                     val word = readLyricFile(currentSong, line, column)
-                    println(">>>>>[$tag]collect word: File $currentSong, line $line column $column , word : $word")
                     Toast.makeText(this, "Word collected: $word", Toast.LENGTH_SHORT).show()
                     placeMarker[count]!!.isVisible = false
                     placeMarker[count]!!.position = noWhere
-                    wordsCollected[wordsCollectedNumber] = count                                    //record the index of collected words
-                    wordsCollectedNumber++
+                    collectedWordsIndex[0]++                                   //Todo null value check kotlin feature
+                    collectedWordsIndex.add(count)
+                    println(">>>>>[$tag]collect word: File $currentSong, line $line column $column , word : $word,Total words: ${collectedWordsIndex.size - 1}, It's the number $count word in list")
                 }
                 count++
             }
@@ -284,6 +306,30 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
     override fun onConnectionFailed(result: ConnectionResult) {
         Toast.makeText(this, "Connection to Google APIs Failed", Toast.LENGTH_LONG).show()
         println(" >>>> [$tag]onConnectionFailed")
+    }
+
+    private fun saveFile(data: String, filename: String) {
+        val out: FileOutputStream?
+        var writer: BufferedWriter? = null
+        try {
+            out = this.openFileOutput(filename, Context.MODE_PRIVATE)
+            writer = BufferedWriter(OutputStreamWriter(out))
+            writer.write(data)
+            println(">>>>> [$tag]File writeData")
+        } catch (e: IOException) {
+            println(">>>>> [$tag]File writeDataError")
+            e.printStackTrace()
+        } finally {
+            try {
+                if (writer != null) {
+                    writer.close()
+                    println(">>>>> [$tag]File writeClose")
+                }
+            } catch (e: IOException) {
+                println(">>>>> [$tag]File writeCloseError")
+                e.printStackTrace()
+            }
+        }
     }
 
     //Locate the specific word in the lyrics
