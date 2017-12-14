@@ -2,12 +2,14 @@ package com.example.great.songle
 
 import android.Manifest
 import android.content.Context
+import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
+import android.support.v7.app.AlertDialog
 import android.view.Gravity
 import android.widget.Toast
 import com.google.android.gms.common.ConnectionResult
@@ -26,6 +28,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.SphericalUtil
 import kotlinx.android.synthetic.main.activity_maps.*
 import java.io.*
+import java.util.*
 
 
 @Suppress("DEPRECATION")
@@ -40,7 +43,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
     private var currentSong = 1                            //Flag for the song chosen in the list
     private var mapVersion = 1                             //map version
     private var accuracy = 15.0
-    private val maxNumber = 150
+    private val maxNumber = 200
     private val totalWordTypes = 4
     private var placeMarkerNumber = 0
     private var line = 0
@@ -51,12 +54,12 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
     private var interesting = false
     private var notBoring = false
     private var boring = false
-    private val noWhere = LatLng(90.0, 0.0)
+    private val noWhere = LatLng(89.654, 123.456)
     private var wordsAddedVisible = 0
     private var currentSongInfo: XmlParser.SongInfo? = null
     private var hintTime = 0
     private var currentUser = ""
-    private var collectedWordsIndex = ArrayList<Int>()
+    private var collectedWordsIndex = ArrayList<Int>()      //collectedWordsIndex[0] is the amount of the word collected. [1] to [n] are the indexed of collected words
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -84,6 +87,23 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
                 .addOnConnectionFailedListener(this)
                 .addApi(LocationServices.API)
                 .build()
+        //read the file of collected words
+        var isFileExist = false
+        try {
+            this.openFileInput("user${currentUser}Song${currentSong}V$mapVersion.txt")
+            isFileExist = true
+        } catch (e: Exception) {
+        }
+        if (isFileExist) {
+            val reader = BufferedReader(InputStreamReader(this.openFileInput("user${currentUser}Song${currentSong}V$mapVersion.txt"))).readLine()
+            collectedWordsIndex[0] = reader.split(" ")[0].toInt()
+            var i = 1
+            while (i <= collectedWordsIndex[0]) {
+                collectedWordsIndex.add(reader.split(" ")[i].toInt())
+                i++
+            }
+        }
+        println(">>>>>[$tag] Recover document: Size = ${collectedWordsIndex.size}, or as ${collectedWordsIndex[0]}, last one is ${collectedWordsIndex[collectedWordsIndex.size - 1]}")
         println(">>>>> [$tag] exiting onCreate, mGoogleApiClient==$mGoogleApiClient")
     }
 
@@ -105,7 +125,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
             saveMark = saveMark.plus(collectedWordsIndex[i].toString())
             i++
         }
-        saveFile(saveMark,"user${currentUser}Song${currentSong}V$mapVersion.txt")
+        saveFile(saveMark, "user${currentUser}Song${currentSong}V$mapVersion.txt")
         println(">>>>> [$tag]onStop")
     }
 
@@ -162,12 +182,25 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
         }
         counter = 0
         placeMarkerNumber = mapMarkers.size
-        while (counter < mapMarkers.size && counter < 604) {
+
+        //To show the markers in the map. check if marker is the type wanted and if it was collected before
+        while (counter < mapMarkers.size && counter < totalPointsMax) {
             when (mapMarkers[counter].description) {
                 "boring" -> {
                     if (boring) {
-                        placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
-                        wordsAddedVisible++
+                        if (collectedWordsIndex.size - 1 > 0) {
+                            if (wordsCollectedBefore(collectedWordsIndex, counter)) {
+                                placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(noWhere.latitude, noWhere.longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                                placeMarker[counter]!!.isVisible = false
+                            } else {
+                                placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                                wordsAddedVisible++
+                            }
+
+                        } else {
+                            placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                            wordsAddedVisible++
+                        }
                     } else {
                         placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(noWhere.latitude, noWhere.longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
                         placeMarker[counter]!!.isVisible = false
@@ -175,8 +208,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
                 }
                 "notboring" -> {
                     if (notBoring) {
-                        placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
-                        wordsAddedVisible++
+                        if (collectedWordsIndex.size - 1 > 0) {
+                            if (wordsCollectedBefore(collectedWordsIndex, counter)) {
+                                placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(noWhere.latitude, noWhere.longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                                placeMarker[counter]!!.isVisible = false
+                            } else {
+                                placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                                wordsAddedVisible++
+                            }
+                        } else {
+                            placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                            wordsAddedVisible++
+                        }
                     } else {
                         placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(noWhere.latitude, noWhere.longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_YELLOW)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
                         placeMarker[counter]!!.isVisible = false
@@ -185,8 +228,18 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
                 }
                 "interesting" -> {
                     if (interesting) {
-                        placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
-                        wordsAddedVisible++
+                        if (collectedWordsIndex.size - 1 > 0) {
+                            if (wordsCollectedBefore(collectedWordsIndex, counter)) {
+                                placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(noWhere.latitude, noWhere.longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                                placeMarker[counter]!!.isVisible = false
+                            } else {
+                                placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                                wordsAddedVisible++
+                            }
+                        } else {
+                            placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                            wordsAddedVisible++
+                        }
                     } else {
                         placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(noWhere.latitude, noWhere.longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_BLUE)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
                         placeMarker[counter]!!.isVisible = false
@@ -194,16 +247,36 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
                 }
                 "veryinteresting" -> {
                     if (veryInteresting) {
-                        placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
-                        wordsAddedVisible++
+                        if (collectedWordsIndex.size - 1 > 0) {
+                            if (wordsCollectedBefore(collectedWordsIndex, counter)) {
+                                placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(noWhere.latitude, noWhere.longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                                placeMarker[counter]!!.isVisible = false
+                            } else {
+                                placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                                wordsAddedVisible++
+                            }
+                        } else {
+                            placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                            wordsAddedVisible++
+                        }
                     } else {
                         placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(noWhere.latitude, noWhere.longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_RED)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
                         placeMarker[counter]!!.isVisible = false
                     }
                 }
                 "unclassified" -> {
-                    placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
-                    wordsAddedVisible++
+                    if (collectedWordsIndex.size - 1 > 0) {
+                        if (wordsCollectedBefore(collectedWordsIndex, counter)) {
+                            placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(noWhere.latitude, noWhere.longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                            placeMarker[counter]!!.isVisible = false
+                        } else {
+                            placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                            wordsAddedVisible++
+                        }
+                    } else {
+                        placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(mapMarkers[counter].latitude, mapMarkers[counter].longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_ROSE)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
+                        wordsAddedVisible++
+                    }
                 }
             }
             counter++
@@ -212,9 +285,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
         val edinburgh = LatLng(55.945025, -3.188550)
         mMap.moveCamera(CameraUpdateFactory.newLatLng(edinburgh))
         mMap.moveCamera(CameraUpdateFactory.zoomTo(15f))
-        val counterToast = Toast.makeText(this, "According to game setting\nThere are $wordsAddedVisible words for collection", Toast.LENGTH_LONG)
-        counterToast.setGravity(Gravity.CENTER, 0, 0)
-        counterToast.show()
+        val recoveredData = "You've collected ${collectedWordsIndex[0]} words before,\nThere are $wordsAddedVisible words for collection"
+        val newData = "According to game setting\nThere are $wordsAddedVisible words for collection"
+        if (collectedWordsIndex[0] != 0) {
+            val counterToast = Toast.makeText(this, recoveredData, Toast.LENGTH_LONG)
+            counterToast.setGravity(Gravity.CENTER, 0, 0)
+            counterToast.show()
+        } else {
+            val counterToast = Toast.makeText(this, newData, Toast.LENGTH_LONG)
+            counterToast.setGravity(Gravity.CENTER, 0, 0)
+            counterToast.show()
+        }
 
         //set the event when the hint button is clicked
         mapHint.setOnClickListener {
@@ -228,7 +309,31 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
                 2 -> Toast.makeText(this, "Hint3:\nThe artist name starts with $hint3", Toast.LENGTH_SHORT).show()
                 3 -> Toast.makeText(this, "You have got enough hits!", Toast.LENGTH_SHORT).show()
             }
-            hintTime++ //Todo you saw hints x times
+            hintTime++
+        }
+
+        //set the event for viewing collected words
+        mapLook.setOnClickListener{
+            val total = collectedWordsIndex.size-1
+            if(total==0){
+                val viewWords = AlertDialog.Builder(this)
+                viewWords.setTitle("You haven't collect any words yet!")
+                viewWords.setMessage("Come back later!")
+                viewWords.setPositiveButton("OK!", { _, _ ->})
+                viewWords.show()
+            }
+            else{
+                val viewWords = AlertDialog.Builder(this)
+                viewWords.setTitle("Words review")
+                viewWords.setMessage("Great! You have collected ${collectedWordsIndex.size-1} words")
+                viewWords.setPositiveButton("Show me now!", { _, _ ->
+                    val intent = Intent(this, CollectedWordsActivity::class.java)
+                    intent.putExtra("collectedWords",collectedWordsIndex)
+                    startActivity(intent)
+                })
+                viewWords.setNegativeButton("Cancel",null)
+                viewWords.show()
+            }
         }
 
         println(">>>>> [$tag]onMapReady")
@@ -291,7 +396,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
                     placeMarker[count]!!.position = noWhere
                     collectedWordsIndex[0]++                                   //Todo null value check kotlin feature
                     collectedWordsIndex.add(count)
-                    println(">>>>>[$tag]collect word: File $currentSong, line $line column $column , word : $word,Total words: ${collectedWordsIndex.size - 1}, It's the number $count word in list")
+                    println(">>>>>[$tag]collect word:Total words: ${collectedWordsIndex.size - 1} File $currentSong, line $line column $column , word : $word, It's the number $count word in list,type ${placeMarker[count]!!.title}")
                 }
                 count++
             }
@@ -330,6 +435,17 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
                 e.printStackTrace()
             }
         }
+    }
+
+    private fun wordsCollectedBefore(list: ArrayList<Int>, index: Int): Boolean {
+        var i = 1
+        while (i < list.size - 1) {
+            if (list[i] == index) {
+                return true
+            }
+            i++
+        }
+        return false
     }
 
     //Locate the specific word in the lyrics

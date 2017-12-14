@@ -123,15 +123,14 @@ class Splash : AppCompatActivity() {
         handler.postDelayed({
             try {
                 val reader = BufferedReader(InputStreamReader(this.openFileInput("currentUser.txt"))).readLine()
-                if(reader!="") {
+                if (reader != "") {
                     val application = this.application as MyApplication
                     application.setUser(reader)
                     Toast.makeText(this, "Welcome back, $reader!", Toast.LENGTH_LONG).show()
                     val intent = Intent(this@Splash, MainActivity::class.java)               //Delay 3seconds at splash
                     startActivity(intent)
                 }
-            }
-            catch (e:Exception){
+            } catch (e: Exception) {
                 val intent = Intent(this@Splash, LoginActivity::class.java)               //Delay 3seconds at splash
                 startActivity(intent)
             }
@@ -150,8 +149,7 @@ class Splash : AppCompatActivity() {
         println(">>>>> [$tag]File $fileName Saved!")
     }
 
-    private fun saveFile(data: String, filename: String)
-    {
+    private fun saveFile(data: String, filename: String) {
         val out: FileOutputStream?
         var writer: BufferedWriter? = null
         try {

@@ -31,7 +31,7 @@ class MyApplication : Application() {
         return songNumber
     }
 
-    fun getUser():String{
+    fun getUser(): String {
         return user
     }
 
@@ -39,19 +39,19 @@ class MyApplication : Application() {
         return accuracy
     }
 
-    fun getVeryInteresting():Boolean{
+    fun getVeryInteresting(): Boolean {
         return veryInteresting
     }
 
-    fun getInteresting():Boolean{
+    fun getInteresting(): Boolean {
         return interesting
     }
 
-    fun getNotBoring():Boolean{
+    fun getNotBoring(): Boolean {
         return notBoring
     }
 
-    fun getBoring():Boolean{
+    fun getBoring(): Boolean {
         return boring
     }
 
@@ -71,23 +71,23 @@ class MyApplication : Application() {
         accuracy = i
     }
 
-    fun setUser(i:String){
+    fun setUser(i: String) {
         user = i
     }
 
-    fun setVeryInteresting(i:Boolean){
+    fun setVeryInteresting(i: Boolean) {
         veryInteresting = i
     }
 
-    fun setInteresting(i:Boolean){
+    fun setInteresting(i: Boolean) {
         interesting = i
     }
 
-    fun setNotBoring(i:Boolean){
+    fun setNotBoring(i: Boolean) {
         notBoring = i
     }
 
-    fun setBoring(i:Boolean){
+    fun setBoring(i: Boolean) {
         boring = i
     }
 }

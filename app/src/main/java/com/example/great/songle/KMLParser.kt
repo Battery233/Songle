@@ -74,8 +74,8 @@ class KmlParser {
         parser.require(XmlPullParser.START_TAG, ns, "Placemark")
         var name = ""
         var description = ""
-        val longitude:Double
-        val latitude:Double
+        val longitude: Double
+        val latitude: Double
         var point = ""
         while (parser.next() != XmlPullParser.END_TAG) {
             println(">>>>> [$tag]readPlacemark->while")

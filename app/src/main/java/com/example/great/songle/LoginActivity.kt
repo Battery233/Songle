@@ -12,7 +12,6 @@ import java.io.*
 import android.util.DisplayMetrics
 
 
-
 class LoginActivity : AppCompatActivity() {
     private var username: String = ""
     private var password: String = ""
@@ -25,7 +24,7 @@ class LoginActivity : AppCompatActivity() {
         val metrics = DisplayMetrics()
         windowManager.defaultDisplay.getRealMetrics(metrics)
         println(">>>>>[$tag] heightPixels = ${metrics.heightPixels}")
-        if(metrics.heightPixels<1280){
+        if (metrics.heightPixels < 1280) {
             val handler = Handler()
             val chooseSongBox = AlertDialog.Builder(this)
             chooseSongBox.setTitle("Sorry you can't run Songle on this device!")
@@ -41,14 +40,14 @@ class LoginActivity : AppCompatActivity() {
         sign_in_button.setOnClickListener {
             username = user.text.toString()
             password = passwordIn.text.toString()
-            if (username != ""&&password!="") {
+            if (username != "" && password != "") {
                 println(">>>>>[$tag] username = $username, password = $password")
                 try {
                     val reader = BufferedReader(InputStreamReader(this.openFileInput("password_$username.txt"))).readLine()
                     if (reader == password) {
                         application.setUser(username)
                         Toast.makeText(this, "Welcome back, $username!", Toast.LENGTH_LONG).show()
-                        saveFile(username,"currentUser.txt")                              //to "remember" the user
+                        saveFile(username, "currentUser.txt")                              //to "remember" the user
                         val intent = Intent(this, MainActivity::class.java)
                         startActivity(intent)
                         println(">>>>>[$tag]finish process no1")
@@ -59,8 +58,8 @@ class LoginActivity : AppCompatActivity() {
                 } catch (e: Exception) {
                     // if user not exist, add a new user
                     Toast.makeText(this, "New user added! User name: $username", Toast.LENGTH_LONG).show()
-                    saveFile(password,"password_$username.txt")
-                    saveFile(username,"currentUser.txt")                                   //to "remember" the user
+                    saveFile(password, "password_$username.txt")
+                    saveFile(username, "currentUser.txt")                                   //to "remember" the user
                     application.setUser(username)
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
@@ -73,7 +72,7 @@ class LoginActivity : AppCompatActivity() {
         }
     }
 
-    private fun saveFile(data: String, filename: String){
+    private fun saveFile(data: String, filename: String) {
         val out: FileOutputStream?
         var writer: BufferedWriter? = null
         try {

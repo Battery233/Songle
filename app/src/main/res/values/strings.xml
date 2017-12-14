@@ -21,7 +21,7 @@
     <string name="DrawerTittle">Preference</string>
     <string name="DrawerShare">Share</string>
     <string name="accuracy">Location accuracy</string>
-    <string name="wordsClassify">Classify words?</string>
+    <string name="wordsClassify">Word classify mode</string>
     <string name="wordsVeryInteresting">VeryInteresting words</string>
     <string name="wordsInteresting">Interesting words</string>
     <string name="wordsNotBoring">NotBoring words</string>
@@ -34,8 +34,9 @@
     <string name="action_sign_in">Sign in or register</string>
     <string name="action_sign_in_short">Sign in</string>
 
-    <string name="title_activity_info">Information</string>
-    <string name="title_home">Player</string>
-    <string name="title_dashboard">Game</string>
+    <string name="title_home">Time</string>
+    <string name="title_mid">Type</string>
+    <string name="title_dashboard">Lyric</string>
     <string name="contentDescription">content Description</string>
+    <string name="title_activity_collected_words">Words collected</string>
 </resources>
