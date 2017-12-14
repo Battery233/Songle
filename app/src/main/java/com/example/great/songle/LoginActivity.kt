@@ -60,6 +60,7 @@ class LoginActivity : AppCompatActivity() {
                     Toast.makeText(this, "New user added! User name: $username", Toast.LENGTH_LONG).show()
                     saveFile(password, "password_$username.txt")
                     saveFile(username, "currentUser.txt")                                   //to "remember" the user
+                    saveFile("0","solved_song_list_$username.txt")
                     application.setUser(username)
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)

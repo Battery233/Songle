@@ -29,15 +29,13 @@ import kotlinx.android.synthetic.main.content_main.*
 import java.lang.Math.abs
 import java.lang.System.currentTimeMillis
 import android.text.InputFilter
+import com.example.great.songle.R.id.drawer_layout
 import kotlinx.android.synthetic.main.switch_item_classify.*
 import kotlinx.android.synthetic.main.switch_item1.*
 import kotlinx.android.synthetic.main.switch_item2.*
 import kotlinx.android.synthetic.main.switch_item3.*
 import kotlinx.android.synthetic.main.switch_item4.*
-import java.io.BufferedWriter
-import java.io.FileOutputStream
-import java.io.IOException
-import java.io.OutputStreamWriter
+import java.io.*
 import java.util.*
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
@@ -47,7 +45,9 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var songNumber = 0
     private var currentUser = ""
     private var accuracyGps = 15.0
-    private var xmlFlag = false
+    private var songNameList = ArrayList<String>()
+    private var youTubeList = ArrayList<String>()
+    private var solvedSongList = ArrayList<Int>()
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -71,24 +71,40 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         songNumber = application.getsongNumber()
         currentUser = application.getUser()
         accuracyGps = application.getaccuracy()
+        songNameList.add("songNameList")
+        youTubeList.add("youTubeList")
+        solvedSongList.add(0)
         //Check local file if internet is not available
         if (songNumber == 0) {
             try {
                 this.openFileInput("songList.xml")
-                xmlFlag = true
             } catch (e: Exception) {
                 Toast.makeText(this, "No Local song list available", Toast.LENGTH_SHORT).show()
             }
         }
-        if (xmlFlag) {
+        try {
             val songList = XmlParser().parse(this.openFileInput("songList.xml"))
             application.setsongNumber(songList.size)
             songNumber = songList.size
             var counter = 0
             while (counter < songList.size) {
-                println(">>>>>[$tag]songList" + counter + ":" + songList[counter])                //print the list after parser
+                songNameList.add(songList[counter].Title)
+                youTubeList.add(songList[counter].Link)
+                println(">>>>>[$tag]songList" + counter + ":" + songList[counter] + songNameList[counter])                //print the list after parser
                 counter++
             }
+        } catch (e: Exception) {
+        }
+
+        //the listener on game icon, click and show time
+        mainSongleIcon.setOnClickListener {
+            val calendar = Calendar.getInstance()
+            val min = calendar.get(Calendar.MINUTE)
+            val hour = calendar.get(Calendar.HOUR_OF_DAY)
+            val date = calendar.get(Calendar.DATE)
+            val month = calendar.get(Calendar.MONTH)
+            val year = calendar.get(Calendar.YEAR)
+            Toast.makeText(this, "It's $hour:$min, $date/$month/$year now!", Toast.LENGTH_LONG).show()
         }
 
         //the start game button
@@ -100,8 +116,46 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     "MapV${mapVersion}Song$currentSong.kml"
                 try {
                     this.openFileInput(kmlLocation)
+                    var isFileExist = false
+                    try {
+                        this.openFileInput("solved_song_list_$currentUser.txt")
+                        isFileExist = true
+                    } catch (e: Exception) {
+                    }
+                    if (isFileExist) {
+                        val reader = BufferedReader(InputStreamReader(this.openFileInput("solved_song_list_$currentUser.txt"))).readLine()
+                        solvedSongList[0] = reader.split(" ")[0].toInt()
+                        var i = 1
+                        while (i <= solvedSongList[0]) {
+                            solvedSongList.add(reader.split(" ")[i].toInt())
+                            i++
+                        }
+                    }
+                    var ifSolved = false
+                    var counter = 1
+                    while (counter <= solvedSongList[0]) {
+                        if (currentSong == solvedSongList[counter]) {
+                            ifSolved = true
+                            break
+                        }
+                        counter++
+                    }
                     val intent = Intent(this, MapsActivity::class.java)                      //goto map activity
-                    startActivity(intent)
+                    intent.putExtra("currentSongTitle", songNameList[currentSong])
+                    intent.putExtra("youTubeLink", youTubeList[currentSong])
+                    intent.putExtra("ifSolved", ifSolved)
+                    if (!ifSolved) {
+                        startActivity(intent)
+                    } else {
+                        val viewWords = AlertDialog.Builder(this)
+                        viewWords.setTitle("You have finished this song before!")
+                        viewWords.setMessage("Do it again?")
+                        viewWords.setPositiveButton("OK!", { _, _ ->
+                            startActivity(intent)
+                        })
+                        viewWords.setNegativeButton("Cancel!", { _, _ ->})
+                        viewWords.show()
+                    }
                 } catch (e: Exception) {
                     Toast.makeText(this, "Load KML failed. Restart the game when Internet is available!", Toast.LENGTH_SHORT).show()
                 }

@@ -18,6 +18,8 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:contentDescription="@string/contentDescription"
+        android:clickable="true"
+        android:focusable="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -75,7 +77,9 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/trophy_3" />
+            android:clickable="true"
+            android:focusable="true"
+            app:srcCompat="@drawable/trophy_2" />
 
         <ImageView
             android:id="@+id/imageView3"
@@ -90,7 +94,9 @@
             app:layout_constraintEnd_toStartOf="@+id/imageView2"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/trophy_2" />
+            android:clickable="true"
+            android:focusable="true"
+            app:srcCompat="@drawable/list_circle" />
 
         <ImageView
             android:id="@+id/imageView4"
@@ -105,7 +111,9 @@
             app:layout_constraintEnd_toEndOf="parent"
             app:layout_constraintStart_toEndOf="@+id/imageView2"
             app:layout_constraintTop_toTopOf="parent"
-            app:srcCompat="@drawable/trophy_1" />
+            android:clickable="true"
+            android:focusable="true"
+            app:srcCompat="@drawable/info_circle" />
 
         <TextView
             android:id="@+id/textView4"

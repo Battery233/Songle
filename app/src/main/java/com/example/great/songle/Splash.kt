@@ -66,9 +66,6 @@ class Splash : AppCompatActivity() {
 
         // Thread for fetch XML for the list of the song and lyrics and maps
         Thread({
-            //val inputXML = DownloadXmlTask(downloadXMLListener).loadXmlFromNetwork("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/songs.xml")
-            //println(">>>>>InputXML"+inputXML)
-            //val streamXML:InputStream = ByteArrayInputStream(inputXML.toByteArray())
             try {
                 val downloadXMLListener = DownloadCompleteListener()
                 val songList = XmlParser().parse(DownloadXmlTask(downloadXMLListener).downloadUrl("http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/songs.xml"))
@@ -98,24 +95,6 @@ class Splash : AppCompatActivity() {
             } catch (e: Exception) {
                 Toast.makeText(this, "Download file failed!", Toast.LENGTH_SHORT).show()
             }
-            /*/GET lyric
-                try {
-                val result = StringBuilder()
-                var  fileIn:FileInputStream? = null
-                fileIn= this.openFileInput("Lyric27.txt")
-                val reader=BufferedReader(InputStreamReader(fileIn))
-                var line: String? = null
-                while ({ line = reader.readLine(); line }()!=null)
-                {
-                    result.append(line)
-                }
-                println("123")
-                println("$count "+result.toString())
-            }
-            catch(e:IOException){
-                println("dada")
-            }*/
-
         }).start()
 
         //find out if has logged in
@@ -137,11 +116,6 @@ class Splash : AppCompatActivity() {
             this@Splash.finish()
         }, 3000)
     }
-
-    /*override fun onStop() {
-        unregisterReceiver(NetworkReceiver())
-        super.onStop()
-    }*/
 
     private fun download(urlString: String, fileName: String) {
         val input = DownloadXmlTask(DownloadCompleteListener()).loadXmlFromNetwork(urlString)

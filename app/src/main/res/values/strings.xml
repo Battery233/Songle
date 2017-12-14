@@ -8,6 +8,8 @@
     <string name="action_change_password">changePassword</string>
     <string name="title_activity_maps">Map</string>
     <string name="title_activity_login">Sign in</string>
+    <string name="WebActivity">YouTube</string>
+    <string name="SongList">All songs</string>
 
     <!-- Strings related to MainActivity -->
     <string name="morning">Good morning!</string>
@@ -17,7 +19,6 @@
     <string name="LetsGo"><![CDATA["Let's go! —>"]]></string>
     <string name="NavHeader">Welcome! Ready to walk around?</string>
     <string name="DrawerStart">Start</string>
-    <string name="DrawerInfo">Info</string>
     <string name="DrawerTittle">Preference</string>
     <string name="DrawerShare">Share</string>
     <string name="accuracy">Location accuracy</string>

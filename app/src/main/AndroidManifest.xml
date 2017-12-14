@@ -56,6 +56,12 @@
         <activity
             android:name=".CollectedWordsActivity"
             android:label="@string/title_activity_collected_words" />
+        <activity
+            android:name=".WebActivity"
+            android:label="@string/WebActivity" />
+        <activity
+            android:name=".SongListActivity"
+            android:label="@string/SongList" />
     </application>
 
 </manifest>

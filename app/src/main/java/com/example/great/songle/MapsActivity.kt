@@ -10,7 +10,9 @@ import android.os.Bundle
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.support.v7.app.AlertDialog
+import android.text.InputFilter
 import android.view.Gravity
+import android.widget.EditText
 import android.widget.Toast
 import com.google.android.gms.common.ConnectionResult
 import com.google.android.gms.common.api.GoogleApiClient
@@ -28,7 +30,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.maps.android.SphericalUtil
 import kotlinx.android.synthetic.main.activity_maps.*
 import java.io.*
-import java.util.*
+import kotlin.collections.ArrayList
 
 
 @Suppress("DEPRECATION")
@@ -59,6 +61,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
     private var currentSongInfo: XmlParser.SongInfo? = null
     private var hintTime = 0
     private var currentUser = ""
+    private var currentSongTitle = ""
+    private var youTubeLink = ""
+    private var ifSolved = false
+    private var solvedSongList = ArrayList<Int>()
     private var collectedWordsIndex = ArrayList<Int>()      //collectedWordsIndex[0] is the amount of the word collected. [1] to [n] are the indexed of collected words
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -76,6 +82,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
         currentUser = application.getUser()
         currentSongInfo = XmlParser().parse(this.openFileInput("songList.xml"))[currentSong - 1]
         collectedWordsIndex.add(0)
+        solvedSongList.add(0)
         setContentView(R.layout.activity_maps)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -103,6 +110,29 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
                 i++
             }
         }
+
+        //Load solved song list
+        isFileExist = false
+        try {
+            this.openFileInput("solved_song_list_$currentUser.txt")
+            isFileExist = true
+        } catch (e: Exception) {
+        }
+        if (isFileExist) {
+            val reader = BufferedReader(InputStreamReader(this.openFileInput("solved_song_list_$currentUser.txt"))).readLine()
+            solvedSongList[0] = reader.split(" ")[0].toInt()
+            var i = 1
+            while (i <= solvedSongList[0]) {
+                solvedSongList.add(reader.split(" ")[i].toInt())
+                i++
+            }
+        }
+        //Get the song title
+        val intent = intent
+        currentSongTitle = intent.getStringExtra("currentSongTitle")
+        youTubeLink = intent.getStringExtra("youTubeLink")
+        ifSolved = intent.getBooleanExtra("ifSolved",false)
+
         println(">>>>>[$tag] Recover document: Size = ${collectedWordsIndex.size}, or as ${collectedWordsIndex[0]}, last one is ${collectedWordsIndex[collectedWordsIndex.size - 1]}")
         println(">>>>> [$tag] exiting onCreate, mGoogleApiClient==$mGoogleApiClient")
     }
@@ -148,6 +178,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
      * it inside the SupportMapFragment. This method will only be triggered once the user has
      * installed Google Play services and returned to the app.
      */
+
     override fun onMapReady(googleMap: GoogleMap) {
         mMap = googleMap
         /* test isMyLocationEnabled
@@ -305,11 +336,70 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
             val hint3 = currentSongInfo!!.Artist[0]
             when (i) {
                 0 -> Toast.makeText(this, "Hint1:\nThe title starts with $hint1", Toast.LENGTH_SHORT).show()
-                1 -> Toast.makeText(this, "Hint2:\nThe title has $hint2 words", Toast.LENGTH_SHORT).show()
+                1 -> Toast.makeText(this, "Hint2:\nThe title has $hint2 letters", Toast.LENGTH_SHORT).show()
                 2 -> Toast.makeText(this, "Hint3:\nThe artist name starts with $hint3", Toast.LENGTH_SHORT).show()
                 3 -> Toast.makeText(this, "You have got enough hits!", Toast.LENGTH_SHORT).show()
             }
             hintTime++
+        }
+
+        //The event when press the guess button in map activity
+        mapGuess.setOnClickListener{
+            val editText = EditText(this)
+            editText.gravity = Gravity.CENTER
+            editText.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(100))
+            val guessBox = AlertDialog.Builder(this)
+            guessBox.setTitle("Any idea about song No.$currentSong?")
+            guessBox.setMessage("Case-insensitive, careful symbols:")
+            guessBox.setView(editText)
+            guessBox.setPositiveButton("Am I right?", { _, _ ->
+                val text = editText.text.toString()
+                val rightOrNot = text.equals(currentSongTitle,true)
+                if(rightOrNot){
+                    val guessRight = AlertDialog.Builder(this)
+                    guessRight.setTitle("Congratulations!")
+                    guessRight.setMessage("You made it by collecting ${collectedWordsIndex[0]} words!")
+                    guessRight.setPositiveButton("Watch it on YouTube→",{ _, _ ->
+                        if(!ifSolved){
+                            solvedSongList[0]++
+                            solvedSongList.add(currentSong)
+                            var saveMark = solvedSongList[0].toString()
+                            var i = 1
+                            while (i <= solvedSongList[0]) {
+                                saveMark = saveMark.plus(" ")
+                                saveMark = saveMark.plus(solvedSongList[i].toString())
+                                i++
+                            }
+                            saveFile(saveMark, "solved_song_list_$currentUser.txt")
+                        }
+                        val intent = Intent(this, WebActivity::class.java)
+                        intent.putExtra("Link",youTubeLink)
+                        startActivity(intent)
+                        this@MapsActivity.finish()
+                    })
+                    guessRight.setNegativeButton("No, thanks!", { _, _ ->
+                        if(!ifSolved){
+                            solvedSongList[0]++
+                            solvedSongList.add(currentSong)
+                            var saveMark = solvedSongList[0].toString()
+                            var i = 1
+                            while (i <= solvedSongList[0]) {
+                                saveMark = saveMark.plus(" ")
+                                saveMark = saveMark.plus(solvedSongList[i].toString())
+                                i++
+                            }
+                            saveFile(saveMark, "solved_song_list_$currentUser.txt")
+                        }
+
+                        this@MapsActivity.finish()
+                    })
+                    guessRight.show()
+                }else{
+                    Toast.makeText(this,"Oops, not right!\nClick the bulb icon to get hint",Toast.LENGTH_LONG).show()
+                }
+            })
+            guessBox.setNegativeButton("Cancel", null)
+            guessBox.show()
         }
 
         //set the event for viewing collected words
@@ -317,7 +407,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
             val total = collectedWordsIndex.size-1
             if(total==0){
                 val viewWords = AlertDialog.Builder(this)
-                viewWords.setTitle("You haven't collect any words yet!")
+                viewWords.setTitle("You haven't collect any words!")
                 viewWords.setMessage("Come back later!")
                 viewWords.setPositiveButton("OK!", { _, _ ->})
                 viewWords.show()
