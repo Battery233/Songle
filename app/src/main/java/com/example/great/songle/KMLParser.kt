@@ -8,10 +8,11 @@ import java.io.InputStream
 
 /**
  * Created by great on 2017/12/10.
- * Parser for kml
+ * Parser for kml, modified from xml parser
  */
 
 class KmlParser {
+    // The dataClass for mapMarks.
     data class MapMarkers(val name: String, val description: String, val longitude: Double, val latitude: Double, val height: Double)
 
     private val ns: String? = null
@@ -30,7 +31,7 @@ class KmlParser {
         }
     }
 
-    /* Following by functions for a specific tag */
+    // Following by functions for parse a specific tag
     @Throws(XmlPullParserException::class, IOException::class)
     private fun readKml(parser: XmlPullParser): List<MapMarkers>? {
         parser.require(XmlPullParser.START_TAG, ns, "kml")
@@ -93,7 +94,6 @@ class KmlParser {
         }
         longitude = point.split(",")[0].toDouble()
         latitude = point.split(",")[1].toDouble()
-        //parser.require(XmlPullParser.END_TAG,ns,"Song")
         return MapMarkers(name, description, longitude, latitude, 0.0)
     }
 

@@ -8,7 +8,7 @@ import java.net.URL
 
 /**
  * Created by great on 2017/11/5.
- *For fetching XML files
+ * For fetching XML files from www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/songs.xml
  */
 
 class DownloadCompleteListener {
@@ -17,10 +17,6 @@ class DownloadCompleteListener {
     }
 }
 
-/*class DownloadXmlTask(private val resources : Resources,
-                      private val caller : DownloadCompleteListener,
-                      private val summaryPref : Boolean) :
-        AsyncTask<String, Void, String>()*/
 class DownloadXmlTask(private val caller: DownloadCompleteListener) :
         AsyncTask<String, Void, String>() {
     private val tag = "DownloadXmlTask"
@@ -41,7 +37,7 @@ class DownloadXmlTask(private val caller: DownloadCompleteListener) :
         caller.downloadComplete(result)
     }
 
-    fun loadXmlFromNetwork(urlString: String): String {
+    fun loadXmlFromNetwork(urlString: String): String {   //build the file string
         val result = StringBuilder()
         val stream = downloadUrl(urlString)
         val reader = BufferedReader(InputStreamReader(stream))

@@ -37,10 +37,16 @@ import kotlinx.android.synthetic.main.switch_item4.*
 import java.io.*
 import java.util.*
 
+/**
+ *  Welcome to mainActivity
+ *  main activity is the major and most important activity
+ *  This activity is not the entrance activity, the start activity is splash activity
+ */
+
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
     private val tag = "MainActivity"
     private var currentSong = 1
-    private var mapVersion = 5
+    private var mapVersion = 5                  //use classify map or unclassified?
     private var songNumber = 0
     private var currentUser = ""
     private var accuracyGps = 15.0
@@ -75,6 +81,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         youTubeList.add("youTubeList")
         solvedSongList.add(0)
         artistList.add("")
+
         //Check local file if internet is not available
         if (songNumber == 0) {
             try {
@@ -98,7 +105,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         } catch (e: Exception) {
         }
 
-        //the listener on game icon, click and show time
+        //the listener on game icon in the top, click and show time
         mainSongleIcon.setOnClickListener {
             val calendar = Calendar.getInstance()
             val min = calendar.get(Calendar.MINUTE)
@@ -109,14 +116,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             Toast.makeText(this, "It's $hour:$min, $date/$month/$year now!", Toast.LENGTH_LONG).show()
         }
 
-        //songList icon listener
+        //solved songList icon listener, click and goto songList activity
         imageView2.setOnClickListener {
             try {
-                 val solvedSongList = ArrayList<Int>()
+                val solvedSongList = ArrayList<Int>()
                 solvedSongList.add(0)
                 var isFileExist = false
                 try {
-                    this.openFileInput("solved_song_list_$currentUser.txt")
+                    this.openFileInput("solved_song_list_$currentUser.txt")        //Load the solved song record
                     isFileExist = true
                 } catch (e: Exception) {
                 }
@@ -129,6 +136,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         i++
                     }
                 }
+                //go to songList activity, with songList info sent
                 val intent = Intent(this, SongListActivity::class.java)
                 intent.putExtra("songNameList", songNameList)
                 intent.putExtra("youTubeList", youTubeList)
@@ -139,22 +147,24 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             }
         }
 
-        imageView3.setOnClickListener{
-            val intent = Intent(this,PlayerInfo::class.java)
+        //the button fot goto player stats 1
+        imageView3.setOnClickListener {
+            val intent = Intent(this, PlayerInfo::class.java)
             val reader = BufferedReader(InputStreamReader(this.openFileInput("solved_song_list_$currentUser.txt"))).readLine()
             val solvedSong = reader.split(" ")[0].toInt()
             intent.putExtra("solvedSong", solvedSong)
             startActivity(intent)
         }
 
-        imageView4.setOnClickListener{
-            val intent = Intent(this,PlayInfo2::class.java)
+        //the button fot goto player stats 2
+        imageView4.setOnClickListener {
+            val intent = Intent(this, PlayInfo2::class.java)
             startActivity(intent)
         }
 
         //the start game button
         fab.setOnClickListener {
-            if (currentSong != 0) {
+            if (currentSong != 0) {         //check if kml file is ready
                 val kmlLocation: String? = if (currentSong in 1..9)
                     "MapV${mapVersion}Song0$currentSong.kml"
                 else
@@ -167,7 +177,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         isFileExist = true
                     } catch (e: Exception) {
                     }
-                    if (isFileExist) {
+                    if (isFileExist) {                         //check if the selected song has solved before
                         val reader = BufferedReader(InputStreamReader(this.openFileInput("solved_song_list_$currentUser.txt"))).readLine()
                         solvedSongList[0] = reader.split(" ")[0].toInt()
                         var i = 1
@@ -185,13 +195,14 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         }
                         counter++
                     }
-                    val intent = Intent(this, MapsActivity::class.java)                      //goto map activity
+                    //goto map activity
+                    val intent = Intent(this, MapsActivity::class.java)
                     intent.putExtra("currentSongTitle", songNameList[currentSong])
                     intent.putExtra("youTubeLink", youTubeList[currentSong])
                     intent.putExtra("ifSolved", ifSolved)
                     if (!ifSolved) {
                         startActivity(intent)
-                    } else {
+                    } else {                       //give a dialog
                         val viewWords = AlertDialog.Builder(this)
                         viewWords.setTitle("You have finished this song before!")
                         viewWords.setMessage("Do it again?")
@@ -212,12 +223,13 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         //the songList button for choose a song or a random song
         fab2.setOnClickListener { view ->
             Snackbar.make(view, "", Snackbar.LENGTH_SHORT)
-            //add input editText
-            if (songNumber != 0) {
+            if (songNumber != 0) {//check if there is song in song list
+                //add input editText
                 val editSongNumber = EditText(this)
                 editSongNumber.inputType = InputType.TYPE_CLASS_NUMBER
                 editSongNumber.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(2))
                 editSongNumber.gravity = Gravity.CENTER
+                editSongNumber.hint = "Input song number here:"
 
                 //To get song number input
                 val chooseSongBox = AlertDialog.Builder(this)
@@ -267,6 +279,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         drawer_layout.addDrawerListener(toggle)
         toggle.syncState()
         nav_view.setNavigationItemSelectedListener(this)
+
         nav_view.menu.getItem(0).isChecked = true                             //start with the game page selected in the drawer
 
         //change fonts
@@ -277,7 +290,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         textView5.typeface = typeface
         textView6.typeface = typeface
         val hour = Calendar.getInstance().get(Calendar.HOUR_OF_DAY)
-        when (hour) {
+        when (hour) {//give greeting according to time
             in 6..11 -> textView2.text = getString(R.string.morning)
             in 12..17 -> textView2.text = getString(R.string.afternoon)
             else -> textView2.text = getString(R.string.evening)
@@ -475,11 +488,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 sendIntent.type = "text/plain"
                 startActivity(sendIntent)
             }
-            R.id.nav_accuracy -> {             //for changing accuracy settings
+            R.id.nav_accuracy -> {             //for changing word collection distance
                 val editAccuracy = EditText(this)
                 editAccuracy.inputType = InputType.TYPE_CLASS_NUMBER
                 editAccuracy.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(2))
                 editAccuracy.gravity = Gravity.CENTER
+                editAccuracy.hint = "5m to 50m"
 
                 //To get accuracy number input
                 val chooseSongBox = AlertDialog.Builder(this)
@@ -513,7 +527,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         return true
     }
 
-    private fun saveFile(data: String, filename: String) {
+    private fun saveFile(data: String, filename: String) {// save file. Parameter 1 as the file content, Parameter 2 is the file name
         val out: FileOutputStream?
         var writer: BufferedWriter? = null
         try {

@@ -12,6 +12,10 @@ import java.io.FileInputStream
 import java.io.InputStreamReader
 import kotlin.collections.ArrayList
 
+/**
+ * This is the activity for viewing the words collected in map
+ * Enter this activity by click the 🔎 button in map activity
+ */
 
 class CollectedWordsActivity : AppCompatActivity() {
     data class WordsGot(val order: Int, val word: String, val line: Int, val column: Int, val type: String)
@@ -24,7 +28,7 @@ class CollectedWordsActivity : AppCompatActivity() {
 
     private val mOnNavigationItemSelectedListener = BottomNavigationView.OnNavigationItemSelectedListener { item ->
         println(">>>>>[$tag]mOnNavigationItemSelectedListener")
-        //Get the info list of markers
+        //Get the info list of words collected, only run once.
         if (listMade) {
             val application = this.application as MyApplication
             val currentSong = application.getcurrentSong()
@@ -51,7 +55,8 @@ class CollectedWordsActivity : AppCompatActivity() {
         }
 
         when (item.itemId) {
-            R.id.navigation_home -> {
+        //3 different buttons, words can be shown in 3 different orders
+            R.id.navigation_home -> {//at the order of time collected
                 val name = ArrayList<String>()
                 var i = 0
                 name.add("***In this list, words are shown\n     at the order of time you collected it:")
@@ -69,7 +74,7 @@ class CollectedWordsActivity : AppCompatActivity() {
                 return@OnNavigationItemSelectedListener true
             }
 
-            R.id.navigation_achievements -> {
+            R.id.navigation_achievements -> { // Show words by words classification
                 val name = ArrayList<String>()
                 if (wordsList[0].type == "•unclassified") {
                     name.add("In this list, all the words are unclassified:")
@@ -79,7 +84,7 @@ class CollectedWordsActivity : AppCompatActivity() {
                         i++
                     }
                 } else {
-                    name.add("***In this list, words are grouped by the word type:")
+                    name.add("***In this list, words are grouped by\n     the type of the word:")
                     name.add("•Very interesting words:")
                     var i = 0
                     while (i < totalWords) {
@@ -122,7 +127,8 @@ class CollectedWordsActivity : AppCompatActivity() {
                 list_view.adapter = adp as ListAdapter?
                 return@OnNavigationItemSelectedListener true
             }
-            R.id.navigation_dashboard -> {
+
+            R.id.navigation_dashboard -> {            // show words by the In-song order
                 println(">>>>>[$tag]mOnNavigationItemSelectedListener->2")
                 val name = ArrayList<String>()
                 var counter1 = 0
@@ -130,8 +136,8 @@ class CollectedWordsActivity : AppCompatActivity() {
                 var minLine = 0
                 var minColumn = 0
                 var index = 0
-                name.add("***In this list, words are listed by the order in song:")
-                while (counter1 < totalWords) {
+                name.add("***In this list, words are listed by\n     the order word appear in song:")
+                while (counter1 < totalWords) {   // Output according the line and column index
                     counter2 = 0
                     var maxLine = 99999
                     var maxColumn = 99999
@@ -187,7 +193,7 @@ class CollectedWordsActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_collected_words)
 
-        //Get the list of word index
+        //Get the list of word by sending the index of words
         val intent = intent
         collectedWordsIndex = intent.getIntegerArrayListExtra("collectedWords")
         println(">>>>>[$tag] total ${collectedWordsIndex[0]}, for ${collectedWordsIndex.size - 1} words")
@@ -202,6 +208,7 @@ class CollectedWordsActivity : AppCompatActivity() {
         view.performClick()
     }
 
+    //To read a specific word in lyric file, by index of column and line
     private fun readLyricFile(currentSong: Int, line: Int, column: Int): String? {
         val address = if (currentSong in 1..9)
             "Lyric0$currentSong.txt"

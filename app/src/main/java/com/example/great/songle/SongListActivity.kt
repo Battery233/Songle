@@ -13,16 +13,23 @@ import android.widget.ListAdapter
 import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_song_list.*
 
+/**
+ * This activity shows the song list. If the song is solved, show the song details, if not, describe as locked
+ * Can watch YouTube video bby clicking the button at bottom
+ */
+
 class SongListActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_song_list)
+        //get information about song list
         val intent = intent
         val songNameList = intent.getStringArrayListExtra("songNameList")
         val youTubeList = intent.getStringArrayListExtra("youTubeList")
         val solvedSongList = intent.getIntegerArrayListExtra("solvedSongList")
         val artistList = intent.getStringArrayListExtra("artistList")
+
         //set list content
         val name = ArrayList<String>()
         var counter = 1
@@ -53,14 +60,16 @@ class SongListActivity : AppCompatActivity() {
         )
         list_view_song.adapter = adp as ListAdapter?
 
+        // the video button
         fab_video.setOnClickListener {
             val editSongNumber = EditText(this)
             editSongNumber.inputType = InputType.TYPE_CLASS_NUMBER
             editSongNumber.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(2))
             editSongNumber.gravity = Gravity.CENTER
+            editSongNumber.hint = "Input song number here:"
             //To get song number input
             val chooseSongBox = AlertDialog.Builder(this)
-            chooseSongBox.setTitle("Choose a song to start:")
+            chooseSongBox.setTitle("Watch MV on YouTube:")
             chooseSongBox.setMessage("Only unlocked songs are available")
             chooseSongBox.setView(editSongNumber)
             chooseSongBox.setPositiveButton("youTube!", { _, _ ->

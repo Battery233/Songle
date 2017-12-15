@@ -8,6 +8,10 @@ import kotlinx.android.synthetic.main.activity_player_info.*
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
+/**
+ * The activity for show some play stats
+ */
+
 class PlayerInfo : AppCompatActivity() {
     private var currentUser = ""
     private var songSolved = 0
@@ -39,6 +43,5 @@ class PlayerInfo : AppCompatActivity() {
         textView9.text = "Total times logged in: $time"
         textView10.text = "YouTube watched: $youtube"
         textView11.text = "Map opened $map times"
-
     }
 }

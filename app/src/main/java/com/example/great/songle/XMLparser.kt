@@ -34,7 +34,6 @@ class XmlParser {
     @Throws(XmlPullParserException::class, IOException::class)
     private fun readSongs(parser: XmlPullParser): List<SongInfo> {
         val entries = ArrayList<SongInfo>()
-        // try {
         parser.require(XmlPullParser.START_TAG, ns, "Songs")
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.eventType != XmlPullParser.START_TAG) {
@@ -50,7 +49,6 @@ class XmlParser {
             }
         }
         println(""">>>>> [$tag]size of entries${entries.size}""")
-        // } catch (e: Exception) {}
         return entries
     }
 
@@ -76,7 +74,6 @@ class XmlParser {
                 else -> skip(parser)
             }
         }
-        //parser.require(XmlPullParser.END_TAG,ns,"Song")
         return SongInfo(number, artist, title, link, 0)
     }
 

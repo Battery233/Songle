@@ -11,6 +11,7 @@
     <string name="WebActivity">YouTube</string>
     <string name="stats">Play stats</string>
     <string name="SongList">All songs</string>
+    <string name="greeting">Hello!</string>
 
     <!-- Strings related to MainActivity -->
     <string name="morning">Good morning!</string>

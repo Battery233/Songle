@@ -11,6 +11,12 @@ import kotlinx.android.synthetic.main.activity_login.*
 import java.io.*
 import android.util.DisplayMetrics
 
+/**
+ * Activity for login or register
+ * When the splash activity found the login status is false or user logged out from main activity, the login activity will start
+ * When the user has registered before, the activity will check if the password is correct,
+ * if not, the user will be registered as a new play and some files for recording user info will be created
+ */
 
 class LoginActivity : AppCompatActivity() {
     private var username: String = ""
@@ -20,7 +26,7 @@ class LoginActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
-        //Test if the Screen resolution reached the requirement of at least 1280 Pixels in height
+        //Test if the Screen resolution reached the requirement of at least 1280 Pixels in height, the game require at least 1280
         val metrics = DisplayMetrics()
         windowManager.defaultDisplay.getRealMetrics(metrics)
         println(">>>>>[$tag] heightPixels = ${metrics.heightPixels}")
@@ -35,22 +41,23 @@ class LoginActivity : AppCompatActivity() {
             }, 5000)
         }
 
-        val application = this.application as MyApplication
+        val application = this.application as MyApplication //get application object for global variables
         //press login button
         sign_in_button.setOnClickListener {
             username = user.text.toString()
             password = passwordIn.text.toString()
             if (username != "" && password != "") {
                 println(">>>>>[$tag] username = $username, password = $password")
-                try {
+                try {//see if thr user has exist
                     val reader = BufferedReader(InputStreamReader(this.openFileInput("password_$username.txt"))).readLine()
                     if (reader == password) {
                         application.setUser(username)
                         var time = BufferedReader(InputStreamReader(this.openFileInput("Login_times_$username.txt"))).readLine().toInt()
                         time++
-                        saveFile(time.toString(),"Login_times_$username.txt")
-                        Toast.makeText(this, "Welcome back, $username!", Toast.LENGTH_LONG).show()
+                        saveFile(time.toString(), "Login_times_$username.txt")
                         saveFile(username, "currentUser.txt")                              //to "remember" the user
+                        Toast.makeText(this, "Welcome back, $username!", Toast.LENGTH_LONG).show()
+                        //login successful, go to main
                         val intent = Intent(this, MainActivity::class.java)
                         startActivity(intent)
                         println(">>>>>[$tag]finish process no1")
@@ -61,31 +68,34 @@ class LoginActivity : AppCompatActivity() {
                 } catch (e: Exception) {
                     // if user not exist, add a new user
                     Toast.makeText(this, "New user added! User name: $username", Toast.LENGTH_LONG).show()
+                    //here are some files for user info recording
                     saveFile(password, "password_$username.txt")
-                    saveFile(username, "currentUser.txt")                                   //to "remember" the user
-                    saveFile("0","solved_song_list_$username.txt")
-                    saveFile("1","Login_times_$username.txt")
-                    saveFile("0","youtube_$username.txt")
-                    saveFile("0","hint_$username.txt")
-                    saveFile("0","map_opened_$username.txt")
-                    saveFile("0","guess_times_$username.txt")
-                    saveFile("0","guess_correct_times_$username.txt")
+                    saveFile(username, "currentUser.txt")
+                    saveFile("0", "solved_song_list_$username.txt")
+                    saveFile("1", "Login_times_$username.txt")
+                    saveFile("0", "youtube_$username.txt")
+                    saveFile("0", "hint_$username.txt")
+                    saveFile("0", "map_opened_$username.txt")
+                    saveFile("0", "guess_times_$username.txt")
+                    saveFile("0", "guess_correct_times_$username.txt")
                     application.setUser(username)
+                    //register successful, go to main
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
                     println(">>>>>[$tag]finish process no1")
                     this.finish()
                 }
-            } else {
+            } else {//username password is empty
                 Toast.makeText(this, "You need a name and password!", Toast.LENGTH_LONG).show()
             }
         }
-        loginWithFacebookButton.setOnClickListener{
-            Toast.makeText(this,"Can't login with Facebook now\nFailed to apply a developer key!",Toast.LENGTH_SHORT).show()
+
+        loginWithFacebookButton.setOnClickListener {
+            Toast.makeText(this, "Can't login with Facebook now\nDeveloper key invalid in current version!", Toast.LENGTH_SHORT).show()
         }
     }
 
-    private fun saveFile(data: String, filename: String) {
+    private fun saveFile(data: String, filename: String) {// save file. Parameter 1 as the file content, Parameter 2 is the file name
         val out: FileOutputStream?
         var writer: BufferedWriter? = null
         try {

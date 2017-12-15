@@ -32,6 +32,9 @@ import kotlinx.android.synthetic.main.activity_maps.*
 import java.io.*
 import kotlin.collections.ArrayList
 
+/**
+ * Map activity, the core play part of the game
+ */
 
 @Suppress("DEPRECATION")
 class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener, LocationListener {
@@ -56,7 +59,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
     private var interesting = false
     private var notBoring = false
     private var boring = false
-    private val noWhere = LatLng(89.654, 123.456)
+    private val noWhere = LatLng(89.7654, 123.4567)
     private var wordsAddedVisible = 0
     private var currentSongInfo: XmlParser.SongInfo? = null
     private var hintTime = 0
@@ -74,7 +77,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        //get global variable
+        //get variable ready
         val application = this.application as MyApplication
         currentSong = application.getcurrentSong()
         mapVersion = application.getmapVersion()
@@ -165,6 +168,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
         }
         saveFile(saveMark, "user${currentUser}Song${currentSong}V$mapVersion.txt")
 
+        //save total hint used
         hinHistory+=hintTime
         saveFile(hinHistory.toString(),"hint_$currentUser.txt")
         saveFile((mapOpened+1).toString(),"map_opened_$currentUser.txt")
@@ -217,8 +221,6 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
         println(">>>>>[$tag]KML stream input: $fileIn")
         val mapMarkers = KmlParser().parse(fileIn)
         println(">>>>> [$tag] Load Map$currentSong.kml : $fileIn")
-        /*val layer = KmlLayer(mMap,fileIn,this)            //cannot edit marks in KMLLayer
-        layer.addLayerToMap()*/
         var counter = 0
         while (counter < mapMarkers!!.size) {
             println(">>>>> [$tag] MapMarkers${1 + counter}=" + mapMarkers[counter])
@@ -232,7 +234,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
             when (mapMarkers[counter].description) {
                 "boring" -> {
                     if (boring) {
-                        if (collectedWordsIndex.size - 1 > 0) {
+                        if (collectedWordsIndex.size - 1 > 0) {//Was it collected before
                             if (wordsCollectedBefore(collectedWordsIndex, counter)) {
                                 placeMarker[counter] = mMap.addMarker(MarkerOptions().position(LatLng(noWhere.latitude, noWhere.longitude)).icon(BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)).title("${mapMarkers[counter].name}  ${mapMarkers[counter].description}"))
                                 placeMarker[counter]!!.isVisible = false
@@ -361,9 +363,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
             val editText = EditText(this)
             editText.gravity = Gravity.CENTER
             editText.filters = arrayOf<InputFilter>(InputFilter.LengthFilter(100))
+            editText.hint = "Case-insensitive"
             val guessBox = AlertDialog.Builder(this)
             guessBox.setTitle("Any idea about song No.$currentSong?")
-            guessBox.setMessage("Case-insensitive, careful symbols:")
+            guessBox.setMessage("Careful space and symbols:")
             guessBox.setView(editText)
             guessBox.setPositiveButton("Am I right?", { _, _ ->
                 guess_time++
@@ -520,7 +523,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
         println(" >>>> [$tag]onConnectionFailed")
     }
 
-    private fun saveFile(data: String, filename: String) {
+    private fun saveFile(data: String, filename: String) { // save file. Parameter 1 as the file content, Parameter 2 is the file name
         val out: FileOutputStream?
         var writer: BufferedWriter? = null
         try {
@@ -544,7 +547,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
         }
     }
 
-    private fun wordsCollectedBefore(list: ArrayList<Int>, index: Int): Boolean {
+    private fun wordsCollectedBefore(list: ArrayList<Int>, index: Int): Boolean {//if the word is collected before?
         var i = 1
         while (i < list.size - 1) {
             if (list[i] == index) {

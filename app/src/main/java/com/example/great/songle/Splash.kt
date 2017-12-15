@@ -14,6 +14,11 @@ import android.widget.Toast
 import kotlinx.android.synthetic.main.activity_splash.*
 import java.io.*
 
+/**
+ * This is the entrance activity. The activity will least for 3 seconds
+ * In this activity, files will be download and login status will be checked
+ */
+
 class Splash : AppCompatActivity() {
     private val tag = "Splash"
 
@@ -25,7 +30,7 @@ class Splash : AppCompatActivity() {
                             as ConnectivityManager
             val networkInfo = connMgr.activeNetworkInfo
             when {
-                networkInfo?.type == ConnectivityManager.TYPE_WIFI -> {                       //give toast about internet type
+                networkInfo?.type == ConnectivityManager.TYPE_WIFI -> {//give toast about internet type
                     Toast.makeText(this@Splash, "Connect via WIFI!", Toast.LENGTH_SHORT).show()
                     println(">>>>> [$tag]OnCreate: NetworkReceiver WIFI")
                 }
@@ -53,7 +58,6 @@ class Splash : AppCompatActivity() {
         val networkReceiver = NetworkReceiver()
         val filter = IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION)
         this.registerReceiver(networkReceiver, filter)                 //registerReceiver
-
 
         val packageInfoManager = packageManager
         try {
@@ -97,7 +101,7 @@ class Splash : AppCompatActivity() {
             }
         }).start()
 
-        //find out if has logged in
+        //find out if has logged in, if yes, go to main, else, go to login activity
         val handler = Handler()
         handler.postDelayed({
             try {
@@ -110,7 +114,7 @@ class Splash : AppCompatActivity() {
                     val readers = BufferedReader(InputStreamReader(this.openFileInput("Login_times_$reader.txt"))).readLine()
                     var time = readers.toInt()
                     time++
-                    saveFile(time.toString(),"Login_times_$reader.txt")
+                    saveFile(time.toString(), "Login_times_$reader.txt")
 
                     val intent = Intent(this@Splash, MainActivity::class.java)               //Delay 3seconds at splash
                     startActivity(intent)
@@ -129,7 +133,7 @@ class Splash : AppCompatActivity() {
         println(">>>>> [$tag]File $fileName Saved!")
     }
 
-    private fun saveFile(data: String, filename: String) {
+    private fun saveFile(data: String, filename: String) {// save file. Parameter 1 as the file content, Parameter 2 is the file name
         val out: FileOutputStream?
         var writer: BufferedWriter? = null
         try {

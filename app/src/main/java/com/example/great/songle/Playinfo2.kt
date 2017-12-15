@@ -8,6 +8,10 @@ import kotlinx.android.synthetic.main.activity_playinfo2.*
 import java.io.BufferedReader
 import java.io.InputStreamReader
 
+/**
+ * The activity for show some play stats
+ */
+
 class PlayInfo2 : AppCompatActivity() {
     private var currentUser = ""
 
@@ -34,10 +38,10 @@ class PlayInfo2 : AppCompatActivity() {
         user_name2.text = currentUser
         textView12.text = "Guess correct ${guessCorrect.toInt()} times"
         textView13.text = "Total guess $guessTimes times"
-        if(guessTimes==0)
+        if (guessTimes == 0)
             textView14.text = "Correctness: ???"
         else
-            textView14.text = "Correctness: ${(guessCorrect/guessTimes*100).toInt()} %"
+            textView14.text = "Correctness: ${(guessCorrect / guessTimes * 100).toInt()} %"
         textView15.text = "Hint pressed $hint times"
     }
 }

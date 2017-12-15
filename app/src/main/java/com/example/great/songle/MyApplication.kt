@@ -4,7 +4,15 @@ import android.app.Application
 
 /**
  * Created by great on 2017/12/11.
- * To provide some global variable
+ * To provide some global variable by setting
+ * <application
+android:name=".MyApplication"
+android:allowBackup="true"
+android:icon="@mipmap/ic_launcher"
+android:label="@string/app_name"
+android:roundIcon="@mipmap/ic_launcher_round"
+android:supportsRtl="true"
+android:theme="@style/AppTheme">
  */
 
 class MyApplication : Application() {

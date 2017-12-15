@@ -8,6 +8,10 @@ import android.webkit.WebViewClient
 import kotlinx.android.synthetic.main.activity_web.*
 import java.io.*
 
+/**
+ * The activity to watch MV on YouTube
+ */
+
 class WebActivity : AppCompatActivity() {
     private var link = ""
     private var counter = 0
@@ -18,13 +22,12 @@ class WebActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_web)
 
+        //To record the YouTube view times for the specific user
         val application = this.application as MyApplication
         val currentUser = application.getUser()
-
-        val reader = BufferedReader(InputStreamReader(this.openFileInput("youtube_$currentUser.txt"))).readLine()
-        counter = reader.toInt()
+        counter = BufferedReader(InputStreamReader(this.openFileInput("youtube_$currentUser.txt"))).readLine().toInt()
         counter++
-        saveFile(counter.toString(),"youtube_$currentUser.txt")
+        saveFile(counter.toString(), "youtube_$currentUser.txt")
 
         web_view.settings.javaScriptEnabled = true
         web_view.webViewClient = object : WebViewClient() {}
