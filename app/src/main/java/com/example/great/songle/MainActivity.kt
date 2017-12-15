@@ -29,7 +29,6 @@ import kotlinx.android.synthetic.main.content_main.*
 import java.lang.Math.abs
 import java.lang.System.currentTimeMillis
 import android.text.InputFilter
-import com.example.great.songle.R.id.drawer_layout
 import kotlinx.android.synthetic.main.switch_item_classify.*
 import kotlinx.android.synthetic.main.switch_item1.*
 import kotlinx.android.synthetic.main.switch_item2.*
@@ -48,6 +47,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var songNameList = ArrayList<String>()
     private var youTubeList = ArrayList<String>()
     private var solvedSongList = ArrayList<Int>()
+    private var artistList = ArrayList<String>()
 
     @SuppressLint("SetTextI18n")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -74,6 +74,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         songNameList.add("songNameList")
         youTubeList.add("youTubeList")
         solvedSongList.add(0)
+        artistList.add("")
         //Check local file if internet is not available
         if (songNumber == 0) {
             try {
@@ -90,7 +91,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             while (counter < songList.size) {
                 songNameList.add(songList[counter].Title)
                 youTubeList.add(songList[counter].Link)
-                println(">>>>>[$tag]songList" + counter + ":" + songList[counter] + songNameList[counter])                //print the list after parser
+                artistList.add(songList[counter].Artist)
+                println(">>>>>[$tag]songList in main" + counter + ":" + songList[counter])                //print the list after parser
                 counter++
             }
         } catch (e: Exception) {
@@ -105,6 +107,49 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val month = calendar.get(Calendar.MONTH)
             val year = calendar.get(Calendar.YEAR)
             Toast.makeText(this, "It's $hour:$min, $date/$month/$year now!", Toast.LENGTH_LONG).show()
+        }
+
+        //songList icon listener
+        imageView2.setOnClickListener {
+            try {
+                 val solvedSongList = ArrayList<Int>()
+                solvedSongList.add(0)
+                var isFileExist = false
+                try {
+                    this.openFileInput("solved_song_list_$currentUser.txt")
+                    isFileExist = true
+                } catch (e: Exception) {
+                }
+                if (isFileExist) {
+                    val reader = BufferedReader(InputStreamReader(this.openFileInput("solved_song_list_$currentUser.txt"))).readLine()
+                    solvedSongList[0] = reader.split(" ")[0].toInt()
+                    var i = 1
+                    while (i <= solvedSongList[0]) {
+                        solvedSongList.add(reader.split(" ")[i].toInt())
+                        i++
+                    }
+                }
+                val intent = Intent(this, SongListActivity::class.java)
+                intent.putExtra("songNameList", songNameList)
+                intent.putExtra("youTubeList", youTubeList)
+                intent.putExtra("solvedSongList", solvedSongList)
+                intent.putExtra("artistList", artistList)
+                startActivity(intent)
+            } catch (e: Exception) {
+            }
+        }
+
+        imageView3.setOnClickListener{
+            val intent = Intent(this,PlayerInfo::class.java)
+            val reader = BufferedReader(InputStreamReader(this.openFileInput("solved_song_list_$currentUser.txt"))).readLine()
+            val solvedSong = reader.split(" ")[0].toInt()
+            intent.putExtra("solvedSong", solvedSong)
+            startActivity(intent)
+        }
+
+        imageView4.setOnClickListener{
+            val intent = Intent(this,PlayInfo2::class.java)
+            startActivity(intent)
         }
 
         //the start game button
@@ -153,7 +198,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         viewWords.setPositiveButton("OK!", { _, _ ->
                             startActivity(intent)
                         })
-                        viewWords.setNegativeButton("Cancel!", { _, _ ->})
+                        viewWords.setNegativeButton("Cancel!", { _, _ -> })
                         viewWords.show()
                     }
                 } catch (e: Exception) {

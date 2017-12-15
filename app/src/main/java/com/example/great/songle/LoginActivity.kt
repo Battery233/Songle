@@ -46,6 +46,9 @@ class LoginActivity : AppCompatActivity() {
                     val reader = BufferedReader(InputStreamReader(this.openFileInput("password_$username.txt"))).readLine()
                     if (reader == password) {
                         application.setUser(username)
+                        var time = BufferedReader(InputStreamReader(this.openFileInput("Login_times_$username.txt"))).readLine().toInt()
+                        time++
+                        saveFile(time.toString(),"Login_times_$username.txt")
                         Toast.makeText(this, "Welcome back, $username!", Toast.LENGTH_LONG).show()
                         saveFile(username, "currentUser.txt")                              //to "remember" the user
                         val intent = Intent(this, MainActivity::class.java)
@@ -61,6 +64,12 @@ class LoginActivity : AppCompatActivity() {
                     saveFile(password, "password_$username.txt")
                     saveFile(username, "currentUser.txt")                                   //to "remember" the user
                     saveFile("0","solved_song_list_$username.txt")
+                    saveFile("1","Login_times_$username.txt")
+                    saveFile("0","youtube_$username.txt")
+                    saveFile("0","hint_$username.txt")
+                    saveFile("0","map_opened_$username.txt")
+                    saveFile("0","guess_times_$username.txt")
+                    saveFile("0","guess_correct_times_$username.txt")
                     application.setUser(username)
                     val intent = Intent(this, MainActivity::class.java)
                     startActivity(intent)
@@ -70,6 +79,9 @@ class LoginActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "You need a name and password!", Toast.LENGTH_LONG).show()
             }
+        }
+        loginWithFacebookButton.setOnClickListener{
+            Toast.makeText(this,"Can't login with Facebook now\nFailed to apply a developer key!",Toast.LENGTH_SHORT).show()
         }
     }
 

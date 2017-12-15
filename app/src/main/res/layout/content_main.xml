@@ -79,7 +79,7 @@
             app:layout_constraintTop_toTopOf="parent"
             android:clickable="true"
             android:focusable="true"
-            app:srcCompat="@drawable/trophy_2" />
+            app:srcCompat="@drawable/list_circle" />
 
         <ImageView
             android:id="@+id/imageView3"
@@ -96,7 +96,7 @@
             app:layout_constraintTop_toTopOf="parent"
             android:clickable="true"
             android:focusable="true"
-            app:srcCompat="@drawable/list_circle" />
+            app:srcCompat="@drawable/trophy_2" />
 
         <ImageView
             android:id="@+id/imageView4"

@@ -106,6 +106,12 @@ class Splash : AppCompatActivity() {
                     val application = this.application as MyApplication
                     application.setUser(reader)
                     Toast.makeText(this, "Welcome back, $reader!", Toast.LENGTH_LONG).show()
+
+                    val readers = BufferedReader(InputStreamReader(this.openFileInput("Login_times_$reader.txt"))).readLine()
+                    var time = readers.toInt()
+                    time++
+                    saveFile(time.toString(),"Login_times_$reader.txt")
+
                     val intent = Intent(this@Splash, MainActivity::class.java)               //Delay 3seconds at splash
                     startActivity(intent)
                 }

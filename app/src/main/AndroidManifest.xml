@@ -62,6 +62,12 @@
         <activity
             android:name=".SongListActivity"
             android:label="@string/SongList" />
+        <activity
+            android:name=".PlayerInfo"
+            android:label="@string/stats" />
+        <activity
+            android:name=".PlayInfo2"
+            android:label="@string/stats" />
     </application>
 
 </manifest>

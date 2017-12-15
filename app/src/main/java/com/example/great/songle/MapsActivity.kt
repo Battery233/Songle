@@ -64,6 +64,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
     private var currentSongTitle = ""
     private var youTubeLink = ""
     private var ifSolved = false
+    private var hinHistory = 0
+    private var mapOpened = 0
+    private var guess_time = 0
+    private var guess_correct_time = 0
     private var solvedSongList = ArrayList<Int>()
     private var collectedWordsIndex = ArrayList<Int>()      //collectedWordsIndex[0] is the amount of the word collected. [1] to [n] are the indexed of collected words
 
@@ -83,6 +87,10 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
         currentSongInfo = XmlParser().parse(this.openFileInput("songList.xml"))[currentSong - 1]
         collectedWordsIndex.add(0)
         solvedSongList.add(0)
+        hinHistory = BufferedReader(InputStreamReader(this.openFileInput("hint_$currentUser.txt"))).readLine().toInt()
+        mapOpened = BufferedReader(InputStreamReader(this.openFileInput("map_opened_$currentUser.txt"))).readLine().toInt()
+        guess_time = BufferedReader(InputStreamReader(this.openFileInput("guess_times_$currentUser.txt"))).readLine().toInt()
+        guess_correct_time = BufferedReader(InputStreamReader(this.openFileInput("guess_correct_times_$currentUser.txt"))).readLine().toInt()
         setContentView(R.layout.activity_maps)
         // Obtain the SupportMapFragment and get notified when the map is ready to be used.
         val mapFragment = supportFragmentManager
@@ -156,6 +164,11 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
             i++
         }
         saveFile(saveMark, "user${currentUser}Song${currentSong}V$mapVersion.txt")
+
+        hinHistory+=hintTime
+        saveFile(hinHistory.toString(),"hint_$currentUser.txt")
+        saveFile((mapOpened+1).toString(),"map_opened_$currentUser.txt")
+
         println(">>>>> [$tag]onStop")
     }
 
@@ -196,7 +209,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
         }
 
         //parser for the kml file
-        val kmlLocation: String? = if (currentSong in 1..9) //TODO: This is the advantage of kotlin   if(a = 0)
+        val kmlLocation: String? = if (currentSong in 1..9)
             "MapV${mapVersion}Song0$currentSong.kml"
         else
             "MapV${mapVersion}Song$currentSong.kml"
@@ -336,7 +349,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
             val hint3 = currentSongInfo!!.Artist[0]
             when (i) {
                 0 -> Toast.makeText(this, "Hint1:\nThe title starts with $hint1", Toast.LENGTH_SHORT).show()
-                1 -> Toast.makeText(this, "Hint2:\nThe title has $hint2 letters", Toast.LENGTH_SHORT).show()
+                1 -> Toast.makeText(this, "Hint2:\nThe title has $hint2 chars", Toast.LENGTH_SHORT).show()
                 2 -> Toast.makeText(this, "Hint3:\nThe artist name starts with $hint3", Toast.LENGTH_SHORT).show()
                 3 -> Toast.makeText(this, "You have got enough hits!", Toast.LENGTH_SHORT).show()
             }
@@ -353,9 +366,13 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
             guessBox.setMessage("Case-insensitive, careful symbols:")
             guessBox.setView(editText)
             guessBox.setPositiveButton("Am I right?", { _, _ ->
+                guess_time++
+                saveFile(guess_time.toString(),"guess_times_$currentUser.txt")
                 val text = editText.text.toString()
                 val rightOrNot = text.equals(currentSongTitle,true)
                 if(rightOrNot){
+                    guess_correct_time++
+                    saveFile(guess_correct_time.toString(),"guess_correct_times_$currentUser.txt")
                     val guessRight = AlertDialog.Builder(this)
                     guessRight.setTitle("Congratulations!")
                     guessRight.setMessage("You made it by collecting ${collectedWordsIndex[0]} words!")
@@ -484,7 +501,7 @@ class MapsActivity : AppCompatActivity(), OnMapReadyCallback, GoogleApiClient.Co
                     Toast.makeText(this, "Word collected: $word", Toast.LENGTH_SHORT).show()
                     placeMarker[count]!!.isVisible = false
                     placeMarker[count]!!.position = noWhere
-                    collectedWordsIndex[0]++                                   //Todo null value check kotlin feature
+                    collectedWordsIndex[0]++
                     collectedWordsIndex.add(count)
                     println(">>>>>[$tag]collect word:Total words: ${collectedWordsIndex.size - 1} File $currentSong, line $line column $column , word : $word, It's the number $count word in list,type ${placeMarker[count]!!.title}")
                 }
