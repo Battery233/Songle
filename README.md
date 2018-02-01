@@ -1,6 +1,6 @@
 # Songle
 
-Link: www.inf.ed.ac.uk/teaching/courses/cslp/
+Google play service required
 
 minSdkVersion: 24
 
