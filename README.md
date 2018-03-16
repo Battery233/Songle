@@ -14,7 +14,7 @@ Device requirements for Songle:
 
 </br>Activity structure:
 
-![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/structure.jpg)
+![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/structure.JPG)
 
 ### screenshots
 
