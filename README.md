@@ -12,28 +12,32 @@ Device requirements for Songle:
 
 >minimum heightPixels: 1280
 
-activity structure:
+</br>Activity structure:
 
-![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/structure.JPG)
+![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/structure.jpg)
 
 ### screenshots
 
-![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/screenshot0.jpg)
+![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/01.jpg)
 
-![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/screenshot1.png)
+![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/02.jpg)
 
-![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/screenshot2.png)
+![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/03.jpg)
 
-![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/screenshot3.png)
+![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/04.jpg)
 
-![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/screenshot4.jpg)
+![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/05.jpg)
 
-![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/screenshot5.png)
+![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/06.jpg)
 
-![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/screenshot6.png)
+![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/07.jpg)
 
-![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/screenshot7.jpg)
+![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/08.jpg)
 
-![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/screenshot8.png)
+![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/09.jpg)
 
-![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/screenshot9.jpg)
+![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/10.jpg)
+
+![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/11.jpg)
+
+![screenshot not found](https://github.com/Battery233/Songle/raw/master/screenshots/12.jpg)
