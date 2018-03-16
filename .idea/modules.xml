@@ -3,7 +3,9 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Songle.iml" filepath="$PROJECT_DIR$/Songle.iml" />
+      <module fileurl="file://D:\Programming\AndroidStudio\Songle\Songle.iml" filepath="D:\Programming\AndroidStudio\Songle\Songle.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://D:\Programming\AndroidStudio\Songle\app\app.iml" filepath="D:\Programming\AndroidStudio\Songle\app\app.iml" />
     </modules>
   </component>
 </project>
