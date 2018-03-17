@@ -12,12 +12,12 @@ Songle is an app implements a location-based mobile phone puzzle game which allo
 
 #### Gaming area
 
-<center>Forrest Hill (55.946233,−3.192473)<center/>|<center>↓<center/>|<center> KFC (55.946233,−3.184319) <center/>
- ---|---|---
-<center>→<center/> |<center>Songle is played in this area<center/>|<center>←<center/>
-<center>**Top of the Meadows (55.942617,−3.192473)**<center/>|<center>↑<center/> |<center>**Buccleuch St bus stop (55.942617,−3.184319)**<center/>
+|<center>** Forrest Hill</br> (55.946233,−3.192473) **<center/>|<center>↓<center/>|<center> ** KFC</br>(55.946233,−3.184319) **<center/>|
+|---|---|---|
+|<center>→<center/>|<center>Songle is played in this area<center/>|<center>←<center/>|
+|<center>**Top of the Meadows</br> (55.942617,−3.192473)**<center/>|<center>↑<center/> |<center>**Buccleuch St bus stop</br>(55.942617,−3.184319)**<center/>|
 
-[Available song list](http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/songs.xml ".xml file")
+#### [Available song list](http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/songs.xml ".xml file")
 
 #### </br>Activity structure
 
