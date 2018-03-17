@@ -4,11 +4,7 @@ Songle is an app implements a location-based mobile phone puzzle game which allo
 
 #### Device requirements for Songle
 
->Google play service installed
-
->minimum sdk version: 24
-
->minimum heightPixels: 1280
+>Google play service installed<br/>minimum sdk version: 24<br/>minimum heightPixels: 1280
 
 #### [Available song list](http://www.inf.ed.ac.uk/teaching/courses/cslp/data/songs/songs.xml ".xml file")
 
